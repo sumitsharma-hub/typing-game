@@ -1,10 +1,9 @@
-import { hash } from 'bcryptjs'
 import Joi from 'joi'
 import mongoose from 'mongoose'
 
 import { type IUser } from '../interfaces/user'
 import { User } from '../models'
-import { MONGO_URI, SALT } from '../settings'
+import { MONGO_URI } from '../settings'
 
 const createSuperUserSchema = Joi.object({
   email: Joi.string().email().required(),
@@ -26,7 +25,6 @@ export default async function createsuperuser (
     password
   }
   const validatedData = await createSuperUserSchema.validateAsync(args)
-  validatedData.password = await hash(validatedData.password, SALT)
   const newUser: IUser = new User({ ...validatedData, isAdmin: true })
   await mongoose.connect(MONGO_URI)
   await newUser.save()

@@ -28,4 +28,5 @@ export interface IUser extends Document {
   dateJoined: string
   lastLogin?: Date | string
   token?: IToken
+  validatePassword: Function
 }

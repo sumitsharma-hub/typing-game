@@ -1,18 +1,17 @@
-import { compareSync } from 'bcryptjs'
+import { type Model } from 'mongoose'
 
 import { type ILogin } from '../interfaces/login'
 import { type ITokenDetail, type IUser, type IUserDetail } from '../interfaces/user'
-import { User } from '../models'
 import { generateKey } from '../utils/token'
 
 export default class AccountService {
-  private readonly model = User
+  public constructor (private readonly model: Model<IUser>) {}
 
   async performLogin (payload: ILogin): Promise<ITokenDetail | null> {
     const user: IUser | null = await this.model.findOne({ email: payload.email, isActive: true })
-
     if (user == null) return null
-    if (!compareSync(payload.password, user.password)) return null
+    const match: boolean = await user.validatePassword(payload.password)
+    if (!match) return null
     if (user.token == null) {
       user.token = { key: generateKey() }
       user.lastLogin = new Date()
