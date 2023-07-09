@@ -1,4 +1,5 @@
-import { Schema, model } from 'mongoose'
+import { compare, getSalt, hash } from 'bcryptjs'
+import { type CallbackError, type CallbackWithoutResultAndOptionalError, Schema, model } from 'mongoose'
 
 import { type IUser } from '../interfaces/user'
 
@@ -18,6 +19,23 @@ const userSchema: Schema = new Schema({
   token: { type: tokenSchema, require: false }
 })
 
-const User = model<IUser>('User', userSchema)
+userSchema.pre(
+  'save', async function (next: CallbackWithoutResultAndOptionalError
+  ): Promise<void> {
+    if (!this.isModified(this.password)) { next(); return }
+    try {
+      const salt: string = await getSalt('12')
+      const hashedPassword: string = await hash(this.password, salt)
+      this.password = hashedPassword
+      next()
+    } catch (e: unknown) {
+      next(e as CallbackError)
+    }
+  })
 
-export default User
+userSchema.methods.validatePassword = async function (password: string): Promise<boolean> {
+  const success: boolean = await compare(password, this.password)
+  return success
+}
+
+export default model<IUser>('User', userSchema)
