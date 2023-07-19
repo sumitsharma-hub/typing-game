@@ -1,16 +1,16 @@
-import { Router } from "express";
+import { Router } from 'express'
 
-import accounts from "./accounts";
-import textGen from "./textGenerator";
+import accounts from './accounts'
+import textGen from './text-generator'
 
 const urlpatterns: Map<string, Router> = new Map<string, Router>([
-  ["/accounts", accounts],
-  ["/text", textGen],
-]);
+  ['/accounts', accounts],
+  ['/text', textGen]
+])
 
-const v1 = Router();
+const v1 = Router()
 urlpatterns.forEach((router: Router, prefix: string) => {
-  v1.use(prefix, router);
-});
+  v1.use(prefix, router)
+})
 
-export default v1;
+export default v1
