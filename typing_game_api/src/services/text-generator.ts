@@ -13,14 +13,14 @@ export default class TextGeneratorService {
 
   async generateText (): Promise<string[]> {
     const randomText: string[] = []
-    const generateRandomWords = (numWords: number) => {
+    const generateRandomWords = (numWords: number): string[] => {
       const wordList = this.words
       const randomIndices = getRandomIndices(wordList.length, numWords)
-      const randomWords = randomIndices.map((index) => wordList[index])
+      const randomWords = randomIndices.map((index: number): string => wordList[index])
       return randomWords
     }
 
-    const getRandomIndices = (max: number, count: number) => {
+    const getRandomIndices = (max: number, count: number): number[] => {
       const indices: number[] = []
       while (indices.length < count) {
         const randomIndex = Math.floor(Math.random() * max)
