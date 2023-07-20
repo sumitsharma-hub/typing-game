@@ -1,13 +1,11 @@
-import React from "react";
+import Cards from "../../containers/cardContainer";
 
-import Navbar from "../../components/Navbar";
-
-const index = () => {
+const Home = () => {
   return (
     <>
-      <Navbar />
+      <Cards/>
     </>
   );
 };
 
-export default index;
+export default Home;

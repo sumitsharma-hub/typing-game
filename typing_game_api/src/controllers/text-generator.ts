@@ -2,7 +2,7 @@ import { type Request, type Response } from 'express'
 
 import { type TextGeneratorService } from '../services'
 
-export default class TextGenerateController {
+export default class TextGeneratorController {
   constructor (private readonly textService: TextGeneratorService) {}
 
   async generateText (request: Request, response: Response): Promise<Response> {

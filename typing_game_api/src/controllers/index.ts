@@ -1,4 +1,4 @@
 import AccountController from './accounts'
-import TextGenerateController from './text-generator'
+import  TextGeneratorController  from './text-generator'
 
-export { AccountController, TextGenerateController }
+export { AccountController, TextGeneratorController }
