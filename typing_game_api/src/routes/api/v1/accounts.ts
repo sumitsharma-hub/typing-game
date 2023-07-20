@@ -1,10 +1,8 @@
 import { Router } from 'express'
 
 import { AccountController } from '../../../controllers'
-import { User } from '../../../models'
-import { AccountService } from '../../../services'
 
-const accountController = new AccountController(new AccountService(User))
+const accountController = new AccountController()
 
 const accounts = Router()
 accounts.route('/login').post(accountController.login)

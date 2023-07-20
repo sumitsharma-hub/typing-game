@@ -1,11 +1,11 @@
 import { Router } from 'express'
 
 import accounts from './accounts'
-import textGen from './text-generator'
+import generator from './text-generator'
 
 const urlpatterns: Map<string, Router> = new Map<string, Router>([
   ['/accounts', accounts],
-  ['/text', textGen]
+  ['/generate', generator]
 ])
 
 const v1 = Router()
