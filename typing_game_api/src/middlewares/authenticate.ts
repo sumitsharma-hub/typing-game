@@ -19,7 +19,8 @@ export default async function authenticate (
   next: NextFunction
 ): Promise<Response | undefined> {
   if (EXCLUDE_URLS.includes(request.path)) {
-    next(); return
+    next()
+    return
   }
   const keyword = 'Token'
   const authorization: string | undefined = request.headers?.authorization

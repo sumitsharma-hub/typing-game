@@ -1,13 +1,14 @@
 import { type Request, type Response } from 'express'
 
-import { type TextGeneratorService } from '../services'
+import { TextGeneratorService } from '../services'
 
-export default class TextGenerateController {
-  constructor (private readonly textService: TextGeneratorService) {}
+const textGeneratorService = new TextGeneratorService()
 
+export default class TextGeneratorController {
   async generateText (request: Request, response: Response): Promise<Response> {
     try {
-      const data = await this.textService.generateText()
+      const data = await textGeneratorService.generateText()
+      console.log(data, 'data')
       if (data.length === 0 || data === undefined) {
         return response.status(500).json('something went wrong')
       }

@@ -1,12 +1,11 @@
 import { Router } from 'express'
 
-import { TextGenerateController } from '../../../controllers'
-import { TextGeneratorService } from '../../../services'
+import { TextGeneratorController } from '../../../controllers'
 
-const textController = new TextGenerateController(new TextGeneratorService())
+const textGeneratorController = new TextGeneratorController()
 
-const textGen = Router()
+const generator = Router()
 
-textGen.route('/text').get(textController.generateText)
+generator.route('/text').get(textGeneratorController.generateText)
 
-export default textGen
+export default generator

@@ -12,6 +12,7 @@ export default class TextGeneratorService {
   }
 
   async generateText (): Promise<string[]> {
+    console.log('this is being generate text')
     const randomText: string[] = []
     const generateRandomWords = (numWords: number): string[] => {
       const wordList = this.words
