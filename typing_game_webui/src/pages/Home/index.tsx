@@ -1,9 +1,12 @@
-import Cards from "../../containers/cardContainer";
+import Cards from "../../containers/CardContainer";
+import { GaurdedLayout } from "../../layouts";
 
 const Home = () => {
   return (
     <>
-      <Cards/>
+      <GaurdedLayout>
+        <Cards />
+      </GaurdedLayout>
     </>
   );
 };

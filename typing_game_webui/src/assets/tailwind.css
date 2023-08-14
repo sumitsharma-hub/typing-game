@@ -5,3 +5,15 @@
 *{
     background-color: rgb(17 24 39);
 }
+
+.incorrect{
+    color:red !important;
+}
+.correct{
+    color: green !important;
+}
+.active-character {
+    background-color: #f7df1e; /* Yellow color for the active character background */
+    color: #000; /* Black color for the active character text */
+    cursor: text; /* Apply the text cursor for the active character */
+  }

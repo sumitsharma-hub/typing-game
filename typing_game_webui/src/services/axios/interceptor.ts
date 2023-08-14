@@ -13,7 +13,7 @@ import {
     const token: string | null = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (token) {
       config.headers["Authorization"] = `Token ${token}`;
-    }
+    }LOCAL_STORAGE_KEY
     if (JSON.parse(import.meta.env.VITE_PUBLIC_DEBUG || "false")) {
       console.info(`[request] [${JSON.stringify(config)}]`);
     }
