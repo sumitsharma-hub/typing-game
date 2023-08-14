@@ -2,6 +2,7 @@ import { compare, hash } from 'bcryptjs'
 import { type CallbackError, type CallbackWithoutResultAndOptionalError, Schema, model } from 'mongoose'
 
 import { type IUser } from '../interfaces/user'
+import { string } from 'yargs'
 
 const tokenSchema: Schema = new Schema(
   {
@@ -13,17 +14,19 @@ const tokenSchema: Schema = new Schema(
 const userSchema: Schema = new Schema({
   email: { type: String, require: true, unique: true },
   firstName: { type: String, require: true },
-  lastName: { type: String, require: true },
-  password: { type: String, require: true },
+  lastName: { type: String, require: false },
+  password: { type: String, require: false },
   isAdmin: { type: Boolean, require: false, default: false },
   isActive: { type: Boolean, require: true, default: true },
   dateJoined: { type: Date, require: true, default: Date.now },
   lastLogin: { type: Date, require: false },
+  provider:{type:String, required:false},
+  profilePhoto: { type: String, required: false },
   token: { type: tokenSchema, require: false }
 })
 
 userSchema.pre('save', async function (next: CallbackWithoutResultAndOptionalError): Promise<void> {
-  if (!this.isModified(this.password)) {
+  if (!this.isModified("password")) {
     next()
     return
   }
