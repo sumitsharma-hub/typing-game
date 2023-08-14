@@ -22,11 +22,17 @@ export interface IUser extends Document {
   email: string
   firstName: string
   lastName: string
-  password: string
+  password?: string
   isAdmin: boolean
   isActive: boolean
   dateJoined: string
   lastLogin?: Date | string
+  profilePhoto?: string;
   token?: IToken
   validatePassword: CallableFunction
+}
+export interface IRegister{
+  email:string
+  password:string
+  confirmPassword:string
 }
