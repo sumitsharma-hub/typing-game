@@ -12,7 +12,6 @@ export default class TextGeneratorService {
   }
 
   async generateText (): Promise<string[]> {
-    console.log('this is being generate text')
     const randomText: string[] = []
     const generateRandomWords = (numWords: number): string[] => {
       const wordList = this.words
@@ -31,7 +30,7 @@ export default class TextGeneratorService {
       }
       return indices
     }
-    const randomWords = generateRandomWords(50)
+    const randomWords = generateRandomWords(5)
     randomWords.forEach((words) => randomText.push(words))
     return randomText
   }
