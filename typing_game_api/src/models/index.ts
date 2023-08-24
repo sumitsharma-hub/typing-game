@@ -1,3 +1,3 @@
 import User from './user'
-
-export { User }
+import TypingMatch from './user-record'
+export {TypingMatch, User }

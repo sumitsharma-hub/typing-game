@@ -81,6 +81,7 @@ export default class SessionController {
   }
 
   async googleOauthHandler(request: Request, response: Response) {
+    console.log('this is googleOauthHander,,=============>');
     try {
       const code = request.query.code as string;
       const { id_token, access_token } = await googleLoginService.getGoogleOAuthtokens(code);
@@ -100,14 +101,16 @@ export default class SessionController {
       const user = await googleLoginService.findAndUpdateUser(
         { email },
         {
-          firstName:name,
-          email:email,
-          profilePhoto:picture,
-          provider:'Google',
-          token : { key: access_token }
+          firstName: name,
+          email: email,
+          profilePhoto: picture,
+          provider: "Google",
+          token: { key: access_token },
         },
         { upsert: true, runValidators: true, new: true, lean: true }
       );
+
+    console.log('this is googleOauthHander,,=============>');
 
       // Create access and refresh token
 

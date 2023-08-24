@@ -1,17 +1,10 @@
-import { NextFunction, type Request, type Response } from "express";
-import jwt from "jsonwebtoken";
+import {  type Request, type Response } from "express";
 import { type ILogin, type IRegister } from "../interfaces/login";
 import { type ITokenDetail, type IUser, type IUserDetail } from "../interfaces/user";
 import { AccountService, GoogleLoginService } from "../services";
 import { loginSchema, registerSchema } from "../validators";
-import axios from "axios";
-import mongoose from "mongoose";
-import { signToken } from "../utils";
-import { log } from "console";
-import { access } from "fs/promises";
 
 const accountService = new AccountService();
-const googleLoginService = new GoogleLoginService();
 
 export default class AccountController {
   async login(request: Request, response: Response): Promise<Response> {
@@ -41,9 +34,11 @@ export default class AccountController {
       return response.status(401).json({ detail: "Unauthorized" });
     }
     const data: Record<string, unknown> = await accountService.performLogout(request.user);
-    response.clearCookie("UserToken");
+    response.clearCookie("access_token");  
+     
     return response.status(204).json(data);
   }
+
 
   async register(request: Request, response: Response) {
     try {

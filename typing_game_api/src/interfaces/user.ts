@@ -27,6 +27,7 @@ export interface IUser extends Document {
   isActive: boolean
   dateJoined: string
   lastLogin?: Date | string
+  provider?:string
   profilePhoto?: string;
   token?: IToken
   validatePassword: CallableFunction
