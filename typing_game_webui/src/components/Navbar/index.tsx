@@ -1,20 +1,29 @@
 import { useState, useEffect } from "react";
 
-import { useGetInfo } from "../../hooks";
-import { useAuth } from "../../hooks/useAuth";
 import { LOCAL_STORAGE_KEY } from "../../constants";
 import { getCookies } from "../../utils";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { useAuth } from "../../hooks/useAuth";
+import { fetchUser, userSelector } from "../../features/userSlice";
+import { IUser } from "../../interfaces/user";
+import { ClearInfo } from "../../features/userSlice";
 
 const Navbar = () => {
   const [CookieAccessToken, setCookieAccessToken] = useState<string | undefined>("");
   const [localStorageToken, setLocalStorageToken] = useState<string | null>("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [userData, setUserData] = useState<IUser>();
+  const [loading, setLoading] = useState("");
 
-  const { userData, loading, getUserInfo } = useGetInfo();
+  const dispatch = useAppDispatch();
+  const selector = useAppSelector(userSelector);
+
   const { login, register, logout, user } = useAuth();
 
-  const picture = userData?.picture;
+  const picture = userData?.profilePhoto;
+  const provider = userData?.provider;
+  const userName=provider ? userData?.firstName : userData?.firstName + " " + userData?.lastName;
 
   const handleProfileMenuToggle = () => {
     if (showMenu) {
@@ -29,16 +38,23 @@ const Navbar = () => {
     }
     setShowMenu(!showMenu);
   };
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, []);
 
   useEffect(() => {
-    const {  access_token } = getCookies();
-    // setLocalStorageToken(token);
+    const { access_token } = getCookies();
+    // dispatch(fetchUserInfo())
+    setUserData(selector.user);
+    setLoading(selector.status);
+    setLocalStorageToken(localStorage.getItem(LOCAL_STORAGE_KEY));
     setCookieAccessToken(access_token);
-    getUserInfo(access_token as string);
+    // access_token?getUserInfo(access_token as string):null;
   }, []);
 
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
+    dispatch(ClearInfo());
     logout();
   };
 
@@ -78,7 +94,9 @@ const Navbar = () => {
               id="user-dropdown"
             >
               <div className="px-4 py-3">
-                <span className="block text-sm text-gray-900 dark:text-white">{userData?.name}</span>
+                <span className="block text-sm text-gray-900 dark:text-white">
+                  {userData === undefined ? "" : userName}
+                </span>
                 <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{userData?.email}</span>
               </div>
               <ul className="py-2" aria-labelledby="user-menu-button">
@@ -144,9 +162,10 @@ const Navbar = () => {
             </button>
           </div>
           <div
-            className={`items-center block absolute top-20 right-0 md:hidden justify-between w-full  md:w-auto md:order-1 ${
-              showMenu ? "block" : "block"
-            }`}
+            className={`items-center justify-between ${
+              !showMenu ? "hidden" : "block"
+            } w-full md:flex md:w-auto md:order-1 
+              `}
             id="navbar-user"
           >
             <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
