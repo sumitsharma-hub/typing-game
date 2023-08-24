@@ -1,12 +1,14 @@
 import { MutableRefObject, useRef } from "react";
 import {getGoogleAuthUrl} from "../../utils";
 import { useAuth } from "../../hooks/useAuth";
+import {useDispatch} from 'react-redux';
 
 function Login() {
 
   const {login}=useAuth();
   const inputEmail: MutableRefObject<HTMLInputElement> = useRef(null!);
   const inputPassword: MutableRefObject<HTMLInputElement> = useRef(null!);
+  const dispatch=useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

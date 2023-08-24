@@ -1,10 +1,11 @@
 import { GaurdedLayout } from "../../layouts";
-import { useGenerateText } from "../../hooks";
+import { useAppSelector, useGenerateText } from "../../hooks";
 import { useEffect, useRef, useState } from "react";
+import useRecordSubmit from "../../hooks/useRecordSubmit";
+import { userSelector } from "../../features/userSlice";
 
-const Random =  () => {
+const Random = () => {
   const [textData, loading, generateText] = useGenerateText();
-
   const [currentWordCompleted, setCurrentWordCompleted] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [wordsTyped, setWordsTyped] = useState([]);
@@ -16,6 +17,7 @@ const Random =  () => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const { submitRecord } = useRecordSubmit();
 
   useEffect(() => {
     if (started) {
@@ -23,6 +25,23 @@ const Random =  () => {
       inputRef.current?.focus();
     }
   }, [started]);
+
+  const selector = useAppSelector(userSelector);
+  useEffect(() => {
+    if (elapsedTime != 0 && completed == true) {
+      const payload = {
+        userName: selector.user?.firstName + " " + selector.user?.lastName,
+        email:selector.user?.email,
+        UserId: selector.user?.id,
+        text: matchData,
+        typedText: typedText,
+        wpm: wpm,
+        accuracy: accuracy.toFixed(2),
+        elapsedTime: elapsedTime,
+      };
+      submitRecord(payload);
+    }
+  }, [completed, elapsedTime]);
 
   const calculateAccuracy = () => {
     if (!completed) {
@@ -172,6 +191,7 @@ const Random =  () => {
               placeholder="Start Typing . . ."
               value={typedText}
               onChange={handleInputChange}
+              autoComplete="off"
               ref={inputRef}
             />
             <button

@@ -1,7 +1,8 @@
+import { fetchUser } from "../features/userSlice";
+import { useAppDispatch } from "../hooks";
 
 const getGoogleAuthUrl = () => {
   const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-
 
   const options = {
     redirect_uri: import.meta.env.VITE_PUBLIC_GOOGLE_OAUTH_REDIRECT_URL as string,
