@@ -2,7 +2,6 @@ import { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 
 import { API } from "../constants";
-import axios from "../services/axios";
 import { IWord } from "../interfaces/word";
 import Axios from "../services/axios";
 
@@ -12,7 +11,6 @@ export default function useGenerateText() {
 
   const generateText = async () =>{
     try{
-
       const response = await Axios.get(API.V1.GENERATE_TEXT);
       const data = await response.data;
       setTextData(data);

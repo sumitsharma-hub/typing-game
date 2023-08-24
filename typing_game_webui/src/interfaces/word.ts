@@ -1,3 +1,3 @@
 export interface IWord {
-  words: [];
+  data: [];
 }
