@@ -15,21 +15,21 @@ import {
       config.headers["Authorization"] = `Token ${token}`;
     }LOCAL_STORAGE_KEY
     if (JSON.parse(import.meta.env.VITE_PUBLIC_DEBUG || "false")) {
-      console.info(`[request] [${JSON.stringify(config)}]`);
+      // console.info(`[request] [${JSON.stringify(config)}]`);
     }
     return config;
   };
   
   const onRequestError = (error: AxiosError): Promise<AxiosError> => {
     if (JSON.parse(import.meta.env.VITE_PUBLIC_DEBUG || "false")) {
-      console.error(`[request error] [${JSON.stringify(error)}]`);
+      // console.error(`[request error] [${JSON.stringify(error)}]`);
     }
     return Promise.reject(error);
   };
   
   const onResponse = (response: AxiosResponse): AxiosResponse => {
     if (JSON.parse(import.meta.env.VITE_PUBLIC_DEBUG || "false")) {
-      console.info(`[response] [${JSON.stringify(response)}]`);
+      // console.info(`[response] [${JSON.stringify(response)}]`);
     }
     return response;
   };
@@ -47,9 +47,9 @@ import {
           break;
         case 403:
           break;
-        case 404:
-          window.location.href = Browser.HTTP_404;
-          break;
+        // case 404:
+        //   window.location.href = Browser.HTTP_404;
+        //   break;
         case 500:
           break;
         case 504:

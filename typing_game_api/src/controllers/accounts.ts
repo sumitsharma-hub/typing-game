@@ -1,4 +1,4 @@
-import {  type Request, type Response } from "express";
+import { type Request, type Response } from "express";
 import { type ILogin, type IRegister } from "../interfaces/login";
 import { type ITokenDetail, type IUser, type IUserDetail } from "../interfaces/user";
 import { AccountService, GoogleLoginService } from "../services";
@@ -34,31 +34,25 @@ export default class AccountController {
       return response.status(401).json({ detail: "Unauthorized" });
     }
     const data: Record<string, unknown> = await accountService.performLogout(request.user);
-    response.clearCookie("access_token");  
-     
+    response.clearCookie("access_token");
+
     return response.status(204).json(data);
   }
 
-
   async register(request: Request, response: Response) {
     try {
+      console.log(request.body, "this is registration body");
       const validatedData: IRegister = await registerSchema.validateAsync(request.body);
       if (validatedData.password !== validatedData.confirmPassword) {
         return response.status(400).json("password does match");
       }
       delete validatedData.confirmPassword;
       const newUser: IUser | null = await accountService.performRegisteration(validatedData);
-      console.log(newUser,'========>')
       if (newUser === null) return response.status(400).json({ detail: "Already registered!" });
       delete newUser.password;
       return response.status(201).json(newUser);
     } catch (error) {
-      console.log('this is not working')
       return response.status(400).json(error);
     }
   }
-
-
-
-  
 }

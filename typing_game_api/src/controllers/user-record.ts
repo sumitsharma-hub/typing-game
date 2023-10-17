@@ -44,11 +44,9 @@ export class UserRecordController {
   async userRecord(request: Request, response: Response) {
     try {
       const {  userName,email,UserId, text, typedText, wpm, accuracy, elapsedTime } = request.body;
-      console.log(request.body, "----------------->");
 
       // Find an existing user record by userId
       const existingUser = await TypingMatch.findOne({ userId: UserId }).exec();
-      console.log(existingUser,'---------->existing user')
 
       if (existingUser) {
         existingUser.email=email,

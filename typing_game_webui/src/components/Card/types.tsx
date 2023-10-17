@@ -1,7 +1,9 @@
 export interface IProps {
     title: string;
     subTitle:string;
-    button:string;
+    button?:string;
+    createButton?:string;
+    joinButton?:string;
     path:string;
   }
   

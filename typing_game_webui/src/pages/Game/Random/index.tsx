@@ -1,14 +1,15 @@
-import { GaurdedLayout } from "../../layouts";
-import { useAppSelector, useGenerateText } from "../../hooks";
+import { GaurdedLayout } from "../../../layouts";
+import { useAppSelector, useGenerateText } from "../../../hooks";
 import { useEffect, useRef, useState } from "react";
-import useRecordSubmit from "../../hooks/useRecordSubmit";
-import { userSelector } from "../../features/userSlice";
+import useRecordSubmit from "../../../hooks/useRecordSubmit";
+import { userSelector } from "../../../features/userSlice";
+import { useAuth } from "../../../hooks/useAuth";
 
 const Random = () => {
-  const [textData, loading, generateText] = useGenerateText();
+  const { textData, loading, generateText } = useGenerateText();
   const [currentWordCompleted, setCurrentWordCompleted] = useState(false);
   const [typedText, setTypedText] = useState("");
-  const [wordsTyped, setWordsTyped] = useState([]);
+  const [wordsTyped, setWordsTyped] = useState<string[]>([]);
   const [started, setStarted] = useState(false);
   const [startTime, setStartTime] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
@@ -18,6 +19,7 @@ const Random = () => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const { submitRecord } = useRecordSubmit();
+  const Auth = useAuth();
 
   useEffect(() => {
     if (started) {
@@ -28,10 +30,11 @@ const Random = () => {
 
   const selector = useAppSelector(userSelector);
   useEffect(() => {
+    console.log(Auth.isLoggedIn, "this is isLoggedIn");
     if (elapsedTime != 0 && completed == true) {
       const payload = {
         userName: selector.user?.firstName + " " + selector.user?.lastName,
-        email:selector.user?.email,
+        email: selector.user?.email,
         UserId: selector.user?.id,
         text: matchData,
         typedText: typedText,
@@ -77,10 +80,8 @@ const Random = () => {
   matchData = matchData.trim();
 
   let wordTypedSoFar = "";
-
+  let currentWordIndex;
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    calculateSpeed();
-    calculateAccuracy();
     const { value } = e.target;
     setTypedText(value);
     wordTypedSoFar += value;
@@ -88,20 +89,34 @@ const Random = () => {
     if (!started) {
       setStarted(true);
     }
-    if (wordTypedSoFar === matchData) {
-      setCompleted(true);
-    } else if (completed) {
-      setCompleted(false);
-    }
-    const totalCharactersTyped = wordTypedSoFar.length;
 
-    // Update the current character index
+    const totalCharactersTyped = wordTypedSoFar.length;
     setCurrentCharacterIndex(totalCharactersTyped);
 
     const typedWords = wordTypedSoFar.trim().split(" ");
+    console.log("typedWords", wordTypedSoFar);
     setWordsTyped(typedWords);
+
+    currentWordIndex = typedWords.length - 1;
+    if (currentWordIndex < textData.data.length) {
+      const currentWord = textData.data[currentWordIndex];
+      // The current word is typed correctly
+      if (typedWords[currentWordIndex] === currentWord) {
+        // The entire text is typed correctly
+        if (wordTypedSoFar === matchData) {
+          setCompleted(true);
+        }
+        calculateSpeed();
+        calculateAccuracy();
+        calculateCompletionPercentage();
+      } else {
+        // The current word is not typed correctly
+        setCompleted(false);
+      }
+    }
   };
 
+  const [completePercentage, setCompletePercentage] = useState("0");
   const calculateCompletionPercentage = () => {
     if (completed) {
       return 100;
@@ -110,9 +125,10 @@ const Random = () => {
       const totalCharacters = matchData.length;
       const percentageCompleted = (charactersTyped / totalCharacters) * 100;
       let percentageValue = "";
-      return percentageValue + Math.round(percentageCompleted);
+      setCompletePercentage(percentageValue + Math.round(percentageCompleted));
     }
   };
+
   const [currentCharacterIndex, setCurrentCharacterIndex] = useState(0);
 
   const getWordStatus = (index: number) => {
@@ -151,10 +167,11 @@ const Random = () => {
     setAccuracy(100);
     setWpm("0");
     generateText();
+
     if (inputRef.current) {
-      console.log("this is focused");
       inputRef.current?.focus();
     }
+    setCompletePercentage("0");
   };
 
   if (loading) {
@@ -170,7 +187,7 @@ const Random = () => {
               return (
                 <span
                   key={index}
-                  className={`mb-2 text-2xl font-light bg-inherit tracking-tight text-gray-900 dark:text-white ${
+                  className={` wordText mb-2 text-2xl font-light bg-inherit tracking-tight text-gray-900 dark:text-white ${
                     getWordStatus(index) ? getWordStatus(index) : "bg-red-500"
                   }`}
                 >
@@ -178,6 +195,26 @@ const Random = () => {
                 </span>
               );
             })}
+            {/* {textData.data?.map((word: string, wordIndex: number) => {
+              let wordTypedSoFar = typedText.split(" ");
+              return (
+                <span
+                  key={wordIndex}
+                  className={`wordText mb-2 text-2xl font-light bg-inherit tracking-tight text-gray-900 dark:text-white`}
+                >
+                  {word.split("").map((char: string, charIndex: number) => (
+                    <span
+                      key={charIndex}
+                      className={`bg-inherit char ${
+                        currentCharacterIndex === charIndex && wordTypedSoFar[wordIndex] === word ? "correct" : ""
+                      }`}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              );
+            })} */}
 
             <p className="font-normal  dark:text-gray-400 bg-inherit pb-6"></p>
 
@@ -186,8 +223,8 @@ const Random = () => {
               id="typewords"
               autoFocus={true}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg   
-          block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
-           dark:text-white"
+               block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+             dark:text-white"
               placeholder="Start Typing . . ."
               value={typedText}
               onChange={handleInputChange}
@@ -227,7 +264,7 @@ const Random = () => {
           <div className="w-2/3  bg-gray-200 rounded-full h-2 my-auto   dark:bg-gray-700">
             <div
               className="bg-green-600 h-2 rounded-full dark:bg-green-500"
-              style={{ width: `${calculateCompletionPercentage()}%` }}
+              style={{ width: `${completePercentage}%` }}
             ></div>
           </div>
           <div className="bg-inherit text-white font-semibold ">{wpm} WPM</div>

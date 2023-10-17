@@ -11,8 +11,15 @@ export interface IUser {
 }
 
 export interface IUseAuth {
-  login: (loginPayload: {}) => Promise<void>;
+  isLoggedIn:boolean;
+  login: (loginPayload: ILogin) => Promise<void>;
   register: (registerPayload: {}) => Promise<void>;
   logout: () => Promise<void>;
   user: IUser | undefined;
+}
+
+export interface ILogin{
+  email:string,
+  password:string,
+  profilePhoto:string
 }

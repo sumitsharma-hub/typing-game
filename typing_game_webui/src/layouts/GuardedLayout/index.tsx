@@ -1,12 +1,13 @@
+import React from "react";
 import { Navbar } from "../../components";
 import { IProps } from "./types";
 const GaurdedLayout = ({ children }: IProps): JSX.Element => {
   return (
-    <div>
+    <div>      
       <Navbar />
       {children}
     </div>
   );
 };
 
-export default GaurdedLayout;
+export default React.memo(GaurdedLayout);

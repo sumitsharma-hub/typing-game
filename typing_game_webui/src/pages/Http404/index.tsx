@@ -1,7 +1,7 @@
 
 const HTTP404 = () => {
   return (
-    <div>HTTP 404</div>
+    <div className="text-white font-medium">HTTP 404</div>
   )
 }
 
