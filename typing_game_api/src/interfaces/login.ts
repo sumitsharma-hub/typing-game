@@ -1,6 +1,7 @@
 export interface ILogin {
   email: string;
   password: string;
+  profilePhoto?:string;
 }
 
 export interface IRegister {
@@ -9,6 +10,7 @@ export interface IRegister {
   lastName: string;
   password: string;
   confirmPassword?: string;
+  profilePhoto?:string;
 }
 
 export interface GoogleTokenResult{

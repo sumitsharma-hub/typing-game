@@ -12,11 +12,11 @@ const Cards = () => {
             path="game/random"
           />
           <Card title="Challenge Friend" subTitle="Play 1v1 with your friend." button="challenge" path="game" />
-          <Card title="Custom Play" subTitle="Play with your friends and family." button="play" path="game" />
+          <Card title="Custom Play" subTitle="Play with your friends and family." createButton="create" joinButton="join"  path="game/custom"  />
         </div>
 
         <div className="py-20">
-            <div style={{color:"white"}}>Recent HighScores</div>
+          <div style={{ color: "white" }}>Recent HighScores</div>
           <LeaderBoard />
         </div>
       </div>

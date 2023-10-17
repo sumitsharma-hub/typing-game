@@ -3,6 +3,8 @@ import Joi from "joi";
 export const loginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(3).required(),
+  profilePhoto:Joi.string(),
+
 });
 
 export const registerSchema = Joi.object({
@@ -11,4 +13,5 @@ export const registerSchema = Joi.object({
   lastName: Joi.string().min(1).required(),
   password: Joi.string().min(3).required(),
   confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
+  profilePhoto:Joi.string()
 });

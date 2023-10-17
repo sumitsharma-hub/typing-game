@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import getGoogleAuthUrl from "../../utils/getGoogleAuthURL";
 import { useAuth } from "../../hooks/useAuth";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import  { fetchProfile } from "../../features/profileSlice";
 
 function Register() {
-  const {login,register, logout}=useAuth();
+  const { login, register, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const selector = useAppSelector((state) => state.profile);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    profilePhoto: "",
   });
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -18,10 +23,17 @@ function Register() {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    dispatch(fetchProfile());
+  }, []);
+
   const handleRegisteration = async (e: React.FormEvent) => {
     e.preventDefault();
-    register(formData);
-
+    const image = selector?.profileImage;
+    const updatedFormData={ ...formData, profilePhoto: image };
+    await register(updatedFormData);
+    setFormData(updatedFormData);
   };
 
   return (
@@ -115,7 +127,7 @@ function Register() {
         </button>
         <br />
         <a
-        href={getGoogleAuthUrl()}
+          href={getGoogleAuthUrl()}
           type="button"
           className="text-white mt-5 mx-auto bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2"
         >

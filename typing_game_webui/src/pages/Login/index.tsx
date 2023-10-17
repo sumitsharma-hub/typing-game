@@ -1,23 +1,32 @@
-import { MutableRefObject, useRef } from "react";
-import {getGoogleAuthUrl} from "../../utils";
+import { MutableRefObject, useRef,useEffect } from "react";
+import { getGoogleAuthUrl } from "../../utils";
 import { useAuth } from "../../hooks/useAuth";
-import {useDispatch} from 'react-redux';
+import { fetchProfile, profileSelector } from "../../features/profileSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 
 function Login() {
-
-  const {login}=useAuth();
+  const { login } = useAuth();
   const inputEmail: MutableRefObject<HTMLInputElement> = useRef(null!);
   const inputPassword: MutableRefObject<HTMLInputElement> = useRef(null!);
-  const dispatch=useDispatch();
+  const dispatch = useAppDispatch();
+  const selector=useAppSelector(profileSelector);
+
+  useEffect(()=>{
+    dispatch(fetchProfile());
+  },[])
+
+ 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const profilePhoto=selector?.profileImage;
+
     const loginPayload = {
       email: inputEmail.current?.value,
       password: inputPassword.current?.value,
+      profilePhoto:profilePhoto,
     };
-    login(loginPayload);
-    
+    await login(loginPayload);
   };
 
   return (
@@ -71,10 +80,12 @@ function Login() {
                 </button>
                 <div className="text-sm font-medium text-gray-900 dark:text-white bg-inherit">
                   Not registered yet?{" "}
-                  <a href="/register" className="text-blue-600 bg-inherit hover:underline dark:text-blue-500">Create account</a>
+                  <a href="/register" className="text-blue-600 bg-inherit hover:underline dark:text-blue-500">
+                    Create account
+                  </a>
                 </div>
                 <a
-                href={getGoogleAuthUrl()}
+                  href={getGoogleAuthUrl()}
                   type="button"
                   className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2"
                 >
@@ -84,6 +95,8 @@ function Login() {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
                     viewBox="0 0 18 19"
+                    style={{background:'inherit'}}
+                    
                   >
                     <path
                       fill-rule="evenodd"

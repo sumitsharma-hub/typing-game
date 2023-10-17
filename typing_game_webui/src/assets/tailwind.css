@@ -2,18 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
-    background-color: rgb(17 24 39);
+* {
+  background-color: rgb(17 24 39);
 }
 
-.incorrect{
-    color:red !important;
+.incorrect {
+  color: red !important;
 }
-.correct{
+/* .correct{
     color: green !important;
+} */
+/* .char {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+
+} */
+
+
+.bg-inherit{
+  background-color: inherit;
+}
+.current-word {
+    border-left: 2px solid #007bff; /* Adjust the color and width as needed */
+    padding-left: 4px; /* Add some padding to separate the border from the text */
+  }
+.correct {
+    opacity: 1;
+    transform: translateY(0);
+    color: green !important;
+    border-left: 2px solid black;
 }
 .active-character {
-    background-color: #f7df1e; /* Yellow color for the active character background */
-    color: #000; /* Black color for the active character text */
-    cursor: text; /* Apply the text cursor for the active character */
-  }
+  background-color: #f7df1e; /* Yellow color for the active character background */
+  color: #000; /* Black color for the active character text */
+  cursor: text; /* Apply the text cursor for the active character */
+}
+
+.cursor {
+  border-left: 2px solid red;
+}
+
+/* width */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  /* background: #f1f1f1; */
+  background-color: rgb(31 41 55 /1);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

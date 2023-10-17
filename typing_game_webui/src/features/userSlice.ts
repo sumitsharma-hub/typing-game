@@ -1,10 +1,11 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Axios from "../services/axios";
-import { API } from "../constants";
 import { RootState } from "../store/store";
 import { IUser } from "../interfaces/user";
+import { API } from "../constants";
 
-enum STATUS {
+import Axios from "../services/axios";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+export enum STATUS {
   IDLE = "idle",
   ERROR = "error",
   SUCCESS = "success",
@@ -18,13 +19,14 @@ export interface UserState  {
 const initialState: UserState = {
   status: STATUS.LOADING,
   user: {
-    id: "1",
-    firstName: "sumit",
-    lastName: "sharma",
+    id: "",
+    firstName: "",
+    lastName: "",
     isAdmin: false,
     isActive: false,
-    email: "sumit@gmail.com",
-    dataJoined: "2023-08-18T09:49:16.938+00:00",
+    email: "",
+    dataJoined: "",
+    profilePhoto:""
   },
 };
 
@@ -44,10 +46,9 @@ const userSlice = createSlice({
     });
     builder.addCase(fetchUser.fulfilled, (state, action: PayloadAction<IUser>) => {
       state.status = STATUS.IDLE;
-      console.log(action.payload,'------>action payload')
       state.user= action.payload;
     });
-    builder.addCase(fetchUser.rejected, (state, action) => {
+    builder.addCase(fetchUser.rejected, (state) => {
       state.status = STATUS.ERROR;
       state.user;
     });

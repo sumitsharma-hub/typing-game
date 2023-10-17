@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import {useDispatch} from 'react-redux'
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -7,17 +6,17 @@ import Axios from "../services/axios";
 import { API, LOCAL_STORAGE_KEY } from "../constants";
 import Cookies from "js-cookie";
 import { fetchUser } from "../features/userSlice";
-import { IUseAuth, IUser } from "../interfaces/user";
+import { ILogin, IUseAuth, IUser } from "../interfaces/user";
 import {useAppDispatch} from '.'
 
 
 export function useAuth(): IUseAuth {
   const [user, setUser] = useState<IUser>();
-  const [loggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const dispatch=useAppDispatch();
   
-  const login = async (loginPayload: {}) => {    
+  const login = async (loginPayload: ILogin) => {    
     try {
       const response = await Axios.post(API.V1.ACCOUNT_LOGIN, loginPayload);
       if (response.status === 401) {
@@ -25,10 +24,12 @@ export function useAuth(): IUseAuth {
       }
       const AccessToken = response.data.token;
       localStorage.setItem(LOCAL_STORAGE_KEY, AccessToken);
-      setIsLoggedIn(true);
+      console.log('this is being called', isLoggedIn);
       setUser(await response.data);
       dispatch(fetchUser());
       navigate("/");
+      setIsLoggedIn((prevState)=>!prevState);
+      console.log('this is being called after setting', isLoggedIn);
     } catch (error) {
       console.log(error, "something went wrong while logging in");
     }
@@ -74,5 +75,7 @@ export function useAuth(): IUseAuth {
     }
   };
 
-  return { login, register, logout, user };
+ 
+
+  return {isLoggedIn, login, register, logout, user };
 }

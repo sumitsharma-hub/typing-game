@@ -1,12 +1,20 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Provider } from "react-redux";
-
 import { Browser } from "./constants";
-import { Home, Random, HTTP404, Login, Register } from "./pages";
+import { Custom, Home, Random, HTTP404, Login, Register } from "./pages";
 import store from "./store/store";
 
+import { useEffect } from "react";
+import { BrowserRouter, Route, Routes, useFetcher } from "react-router-dom";
+import { Provider } from "react-redux";
+import { io, Socket } from "socket.io-client";
 
 function App() {
+  let socket: Socket = io("http://127.0.0.1:8000/");
+  useEffect(() => {
+    socket.on("connect", () => console.log(socket.id));
+  }, [socket]);
+
+  
+
   return (
     <Provider store={store}>
       <BrowserRouter>
@@ -16,12 +24,13 @@ function App() {
           <Route path={Browser.ROOT} element={<Home />}></Route>
           <Route path={Browser.RANDOM}>
             <Route path={"random"} element={<Random />} />
-            <Route path={"regular"} element={<Random />} />
+            <Route path={"custom"} element={<Custom socket={socket} />} />
           </Route>
           <Route path={Browser.HTTP_404} element={<HTTP404 />}></Route>
           <Route path={Browser.ASTERISK} element={<HTTP404 />}></Route>
         </Routes>
       </BrowserRouter>
+      <br />
     </Provider>
   );
 }

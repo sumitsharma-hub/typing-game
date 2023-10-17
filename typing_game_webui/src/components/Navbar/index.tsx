@@ -4,58 +4,65 @@ import { LOCAL_STORAGE_KEY } from "../../constants";
 import { getCookies } from "../../utils";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
-import { fetchUser, userSelector } from "../../features/userSlice";
-import { IUser } from "../../interfaces/user";
+import userSlice, { fetchUser, userSelector } from "../../features/userSlice";
 import { ClearInfo } from "../../features/userSlice";
 
 const Navbar = () => {
   const [CookieAccessToken, setCookieAccessToken] = useState<string | undefined>("");
   const [localStorageToken, setLocalStorageToken] = useState<string | null>("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [uniqueName,setUniqueName]=useState<string | null>("");
   const [showMenu, setShowMenu] = useState(false);
-  const [userData, setUserData] = useState<IUser>();
   const [loading, setLoading] = useState("");
 
   const dispatch = useAppDispatch();
   const selector = useAppSelector(userSelector);
 
-  const { login, register, logout, user } = useAuth();
+  const Auth = useAuth();
 
+
+  useEffect(() => {
+    const { access_token } = getCookies();
+    setLoading(selector.status);
+    setLocalStorageToken(localStorage.getItem(LOCAL_STORAGE_KEY));
+    setCookieAccessToken(access_token);
+    console.log(Auth.user,'this is userData--------------><<<<<<<<<<<<')
+  }, []);
+ 
+
+  const userData = selector.user;
   const picture = userData?.profilePhoto;
   const provider = userData?.provider;
-  const userName=provider ? userData?.firstName : userData?.firstName + " " + userData?.lastName;
+  let userName:string | null = provider ? userData?.firstName : userData?.firstName + " " + userData?.lastName;
 
+  const loggedInStatus =Auth.isLoggedIn; // Call it directly
+
+  useEffect(() => {
+    dispatch(fetchUser());
+    console.log(loggedInStatus, 'isLoggedin---------->');
+    if(!loggedInStatus){
+      setUniqueName(localStorage.getItem("userNameNotLogged"));
+      userName=uniqueName;
+      console.log(userName," ------->");
+    }
+  }, []);
   const handleProfileMenuToggle = () => {
     if (showMenu) {
       setShowMenu(!showMenu);
     }
     setShowProfileMenu(!showProfileMenu);
   };
-
   const handleMenuToggle = () => {
     if (showProfileMenu) {
       setShowProfileMenu(!showProfileMenu);
     }
     setShowMenu(!showMenu);
   };
-  useEffect(() => {
-    dispatch(fetchUser());
-  }, []);
-
-  useEffect(() => {
-    const { access_token } = getCookies();
-    // dispatch(fetchUserInfo())
-    setUserData(selector.user);
-    setLoading(selector.status);
-    setLocalStorageToken(localStorage.getItem(LOCAL_STORAGE_KEY));
-    setCookieAccessToken(access_token);
-    // access_token?getUserInfo(access_token as string):null;
-  }, []);
 
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(ClearInfo());
-    logout();
+    Auth.logout();
   };
 
   return (
@@ -73,7 +80,7 @@ const Navbar = () => {
           <div className="flex items-center md:order-2">
             <button
               type="button"
-              className="relative flex mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+              className="relative w-12 h-12 flex mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
               id="user-menu-button"
               aria-expanded="false"
               data-dropdown-toggle="user-dropdown"
@@ -81,11 +88,28 @@ const Navbar = () => {
               onClick={handleProfileMenuToggle}
             >
               <span className="sr-only">Open user menu</span>
-              <img
-                className="w-12 h-12 rounded-full"
-                src={picture ? picture : `https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg`}
-                alt="user photo"
-              />
+              <div className="w-full h-full rounded-full">
+                {picture ? (
+                  <div className="w-12 h-12 rounded-full">
+                    {picture &&
+                    //  <div className="w-12 h-12 rounded-full" dangerouslySetInnerHTML={{ __html: picture }} />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="rounded-full"
+                      width="100%"
+                      height="100%"
+                      dangerouslySetInnerHTML={{ __html: picture }}
+            />
+                  }
+                  </div>
+                ) : (
+                  <img
+                    className="w-12 h-12 rounded-full"
+                    src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+                    alt="user photo"
+                  />
+                )}
+              </div>
             </button>
             <div
               className={` max-w-md:none z-50 absolute top-10 right-5 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 ${
@@ -95,7 +119,7 @@ const Navbar = () => {
             >
               <div className="px-4 py-3">
                 <span className="block text-sm text-gray-900 dark:text-white">
-                  {userData === undefined ? "" : userName}
+                  {userName !=null ? userName : ""}
                 </span>
                 <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{userData?.email}</span>
               </div>
