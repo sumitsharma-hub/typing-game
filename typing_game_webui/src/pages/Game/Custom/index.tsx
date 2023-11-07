@@ -51,15 +51,19 @@ const Custom = ({ socket }: CustomProps) => {
     });
 
     socket.on("user_left", (updatedUserList: string[]) => {
-      console.log('this is being called userelft', updatedUserList)
       setUserList(updatedUserList);
       const leftMessage = `${updatedUserList[updatedUserList.length - 1]} has left the room.`;
       setSystemMessages((prevMessages) => [...prevMessages, leftMessage]);
+    });
+    socket.on("already_inside_room", (message: string) => {
+      // Handle the message for users already inside the room
+      console.log(message); // You can display this message to the user as needed
     });
 
     return () => {
       socket.off("user_joined");
       socket.off("user_left");
+      socket.off("already_inside_room");
     };
   }, [socket, messageList]);
 
@@ -119,19 +123,19 @@ const Custom = ({ socket }: CustomProps) => {
               ))} */}
                 <div className="p-6 h-96 space-y-1 overflow-y-scroll">
                   {/* {!showChat ? ( */}
-                    <div>
-                      {systemMessages.map((message, index) => (
-                        <Message key={index} message={message} />
-                      ))}
-                      {messageList?.map((messageContent, index) => (
-                        <Chat
-                          key={index}
-                          author={messageContent.author}
-                          message={messageContent.message}
-                          profilePhoto={messageContent.profilePhoto}
-                        />
-                      ))}
-                    </div>
+                  <div>
+                    {systemMessages.map((message, index) => (
+                      <Message key={index} message={message} />
+                    ))}
+                    {messageList?.map((messageContent, index) => (
+                      <Chat
+                        key={index}
+                        author={messageContent.author}
+                        message={messageContent.message}
+                        profilePhoto={messageContent.profilePhoto}
+                      />
+                    ))}
+                  </div>
                   {/* ) : null} */}
                 </div>
                 <div className="flex items-center p-3 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600 bg-inherit">
