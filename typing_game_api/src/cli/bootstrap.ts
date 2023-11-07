@@ -29,27 +29,35 @@ export function createSocketConnection(server: Server) {
   console.log("This is being called");
   const io: SocketServer = new SocketServer(server);
 
-  const rooms: { [key: string]: string[] } = {};
+  const rooms: { [key: string]: { creator: string; users: string[] } } = {};
 
   io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
 
     socket.on("join_room", (room, username) => {
-      socket.join(room);
-      console.log(`user with ID: ${socket.id} joined room: ${room}`);
-
-      if (!rooms[room]) {
-        rooms[room] = [username];
+      if (rooms[room] && rooms[room].users.includes(username)) {
+        io.to(socket.id).emit("already_inside_room", "You are already inside the room.");
       } else {
-        rooms[room].push(username);
-      }
+        socket.join(room);
+        console.log("this is being called", rooms);
 
-      io.to(room).emit("user_joined", rooms[room]);
+        console.log(`user with ID: ${socket.id} joined room: ${room}`);
+
+        if (!rooms[room]) {
+          rooms[room] = { creator: username, users: [username] };
+        } else {
+          rooms[room].users.push(username);
+        }
+
+        io.to(room).emit("user_joined", rooms[room].users);
+      }
     });
+
     socket.on("leave_room", (room, username) => {
+      console.log("leave", rooms);
       if (rooms[room]) {
-        rooms[room] = rooms[room].filter((name) => name !== username);
-        io.to(room).emit("user_left", rooms[room]);
+        rooms[room].users = rooms[room].users.filter((name) => name !== username);
+        io.to(room).emit("user_left", rooms[room].users);
       }
     });
 
@@ -61,9 +69,9 @@ export function createSocketConnection(server: Server) {
       console.log("User Disconnected", socket.id);
 
       for (const room in rooms) {
-        if (rooms[room].includes(socket.id)) {
-          rooms[room] = rooms[room].filter((id) => id !== socket.id);
-          io.to(room).emit("user_left", rooms[room]);
+        if (rooms[room].users.includes(socket.id)) {
+          rooms[room].users = rooms[room].users.filter((id) => id !== socket.id);
+          io.to(room).emit("user_left", rooms[room].users);
         }
       }
     });
