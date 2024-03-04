@@ -1,9 +1,7 @@
 import path from 'path'
 
-import dotenv from 'dotenv'
-
-dotenv.config()
+import 'dotenv/config'
 
 export const BASE_DIR: string = path.dirname(path.dirname(__filename))
 
-export const MONGO_URI: string = process.env.MONGO_URI ?? 'mongodb://127.0.0.1:27017/typinggame'
+export const MONGO_URI: string = String(process.env.MONGO_URI)
