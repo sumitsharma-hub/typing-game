@@ -24,7 +24,7 @@ function App() {
           <Route path={Browser.ROOT} element={<Home />}></Route>
           <Route path={Browser.RANDOM}>
             <Route path={"random"} element={<Random />} />
-            <Route path={"custom/"} element={<Custom socket={socket} />} />
+            <Route path={"custom/:id"} element={<Custom socket={socket} />} />
           </Route>
           <Route path={Browser.HTTP_404} element={<HTTP404 />}></Route>
           <Route path={Browser.ASTERISK} element={<HTTP404 />}></Route>

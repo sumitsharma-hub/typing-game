@@ -11,41 +11,37 @@ const Navbar = () => {
   const [CookieAccessToken, setCookieAccessToken] = useState<string | undefined>("");
   const [localStorageToken, setLocalStorageToken] = useState<string | null>("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [uniqueName,setUniqueName]=useState<string | null>("");
   const [showMenu, setShowMenu] = useState(false);
   const [loading, setLoading] = useState("");
 
   const dispatch = useAppDispatch();
   const selector = useAppSelector(userSelector);
-
+  const isLoggedInAuthInfo = useAppSelector((state)=>state.Auth);
+  const loggedInStatus=isLoggedInAuthInfo.isLoggedIn;
   const Auth = useAuth();
-
 
   useEffect(() => {
     const { access_token } = getCookies();
     setLoading(selector.status);
     setLocalStorageToken(localStorage.getItem(LOCAL_STORAGE_KEY));
     setCookieAccessToken(access_token);
-    console.log(Auth.user,'this is userData--------------><<<<<<<<<<<<')
   }, []);
- 
 
   const userData = selector.user;
   const picture = userData?.profilePhoto;
   const provider = userData?.provider;
-  let userName:string | null = provider ? userData?.firstName : userData?.firstName + " " + userData?.lastName;
+  let userName: string | null = provider ? userData?.firstName : userData?.firstName + " " + userData?.lastName;
 
-  const loggedInStatus =Auth.isLoggedIn; // Call it directly
 
+  
   useEffect(() => {
-    dispatch(fetchUser());
-    console.log(loggedInStatus, 'isLoggedin---------->');
-    if(!loggedInStatus){
-      setUniqueName(localStorage.getItem("userNameNotLogged"));
-      userName=uniqueName;
-      console.log(userName," ------->");
+    if (!loggedInStatus) {
+      dispatch(fetchUser());
+      console.log("this is localName---->", localStorage.getItem("userNameNotLogged"), "userName-->", userName);
+      userName = localStorage.getItem("userNameNotLogged");
     }
-  }, []);
+  }, [loggedInStatus, useAuth]);
+
   const handleProfileMenuToggle = () => {
     if (showMenu) {
       setShowMenu(!showMenu);
@@ -91,16 +87,16 @@ const Navbar = () => {
               <div className="w-full h-full rounded-full">
                 {picture ? (
                   <div className="w-12 h-12 rounded-full">
-                    {picture &&
-                    //  <div className="w-12 h-12 rounded-full" dangerouslySetInnerHTML={{ __html: picture }} />
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="rounded-full"
-                      width="100%"
-                      height="100%"
-                      dangerouslySetInnerHTML={{ __html: picture }}
-            />
-                  }
+                    {picture && (
+                      //  <div className="w-12 h-12 rounded-full" dangerouslySetInnerHTML={{ __html: picture }} />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="rounded-full"
+                        width="100%"
+                        height="100%"
+                        dangerouslySetInnerHTML={{ __html: picture }}
+                      />
+                    )}
                   </div>
                 ) : (
                   <img
@@ -119,7 +115,7 @@ const Navbar = () => {
             >
               <div className="px-4 py-3">
                 <span className="block text-sm text-gray-900 dark:text-white">
-                  {userName !=null ? userName : ""}
+                  {userName}
                 </span>
                 <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{userData?.email}</span>
               </div>
