@@ -26,7 +26,7 @@ const NamesAdjectives = [
 ];
 
 export default function useName() {
-  const [userName, setUserName] = useState("");
+  const [userNameNotLoggedIn, setUserNameNotLoggedIn] = useState("");
 
   const getUniqueName = () => {
     const localStorageKey = 'userNameNotLogged';
@@ -36,10 +36,11 @@ export default function useName() {
     const randomAdjective = NamesAdjectives[Math.floor(Math.random() * NamesAdjectives.length)];
     const uniqueName = `${randomAdjective}#${randomNumber}`;
     localStorage.setItem(localStorageKey,uniqueName)
-    setUserName(uniqueName);
+    setUserNameNotLoggedIn(uniqueName);
     console.log(uniqueName);
+    return uniqueName;
   };
 
 
-  return {userName,getUniqueName}; // Example output: "wonderfully-5678"
+  return {userNameNotLoggedIn,getUniqueName}; // Example output: "wonderfully-5678"
 }

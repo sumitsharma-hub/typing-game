@@ -6,6 +6,7 @@ import Axios from "../services/axios";
 import { API, LOCAL_STORAGE_KEY } from "../constants";
 import Cookies from "js-cookie";
 import { fetchUser } from "../features/userSlice";
+import {setLoggedIn} from "../features/authSlice"
 import { ILogin, IUseAuth, IUser } from "../interfaces/user";
 import {useAppDispatch} from '.'
 
@@ -24,12 +25,15 @@ export function useAuth(): IUseAuth {
       }
       const AccessToken = response.data.token;
       localStorage.setItem(LOCAL_STORAGE_KEY, AccessToken);
-      console.log('this is being called', isLoggedIn);
+      if(response.status===201){
+        setIsLoggedIn((prev)=>!prev);
+        dispatch(setLoggedIn(true));
+        console.log("22222---->")
+      }
       setUser(await response.data);
-      dispatch(fetchUser());
+      await dispatch(fetchUser());
       navigate("/");
-      setIsLoggedIn((prevState)=>!prevState);
-      console.log('this is being called after setting', isLoggedIn);
+      setIsLoggedIn(true);
     } catch (error) {
       console.log(error, "something went wrong while logging in");
     }
@@ -45,6 +49,8 @@ export function useAuth(): IUseAuth {
       localStorage.setItem(LOCAL_STORAGE_KEY, AccessToken);
       setUser(await response.data);
       setIsLoggedIn(true);
+      dispatch(setLoggedIn(true));
+
       dispatch(fetchUser());
       navigate("/");
     } catch (error) {
@@ -67,13 +73,14 @@ export function useAuth(): IUseAuth {
         console.log(response.status, "Invalid User");
       }
       localStorage.clear();
-
       setIsLoggedIn(false);
+      dispatch(setLoggedIn(false));
       navigate("/login");
     } catch (error) {
       console.log(error, "something went wrong while logging Out");
     }
   };
+
 
  
 

@@ -5,7 +5,7 @@ import { fetchProfile, profileSelector } from "../../features/profileSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
 function Login() {
-  const { login } = useAuth();
+  const { login,isLoggedIn } = useAuth();
   const inputEmail: MutableRefObject<HTMLInputElement> = useRef(null!);
   const inputPassword: MutableRefObject<HTMLInputElement> = useRef(null!);
   const dispatch = useAppDispatch();
@@ -28,6 +28,13 @@ function Login() {
     };
     await login(loginPayload);
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // Do something after successful login, for example, redirect to another page
+      console.log('User is logged in!((((((((((((()))))))))))))) 1111', isLoggedIn);
+    }
+  }, [isLoggedIn]);
 
   return (
     <div>

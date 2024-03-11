@@ -10,6 +10,10 @@ export interface IUser {
   dataJoined: string;
 }
 
+export interface ILoggedInfo{
+  isLoggedIn:Boolean;
+}
+
 export interface IUseAuth {
   isLoggedIn:boolean;
   login: (loginPayload: ILogin) => Promise<void>;

@@ -4,6 +4,7 @@ import { GaurdedLayout } from "../../../layouts";
 import { Chat, Message } from "../../../components";
 import { userSelector } from "../../../features/userSlice";
 import { useAppSelector } from "../../../hooks";
+import { useParams } from "react-router-dom";
 
 interface CustomProps {
   socket: Socket;
@@ -31,6 +32,7 @@ const Custom = ({ socket }: CustomProps) => {
   const [room, setRoom] = useState("");
   const [showChat, setShowChat] = useState(false);
 
+  let { id } = useParams();
   const joinRoom = () => {
     if (username !== "" && room !== "") {
       socket.emit("join_room", room, username);
@@ -42,6 +44,16 @@ const Custom = ({ socket }: CustomProps) => {
     setRoom("");
     setShowChat(false);
   };
+
+
+  useEffect(()=>{
+    socket.emit("join_room",id, username);
+  },[])
+
+  useEffect(() => {
+    setUserName(selector.user?.firstName + " " + selector.user?.lastName);
+  }, []);
+  
 
   useEffect(() => {
     socket.on("user_joined", (updatedUserList: string[]) => {
@@ -95,9 +107,7 @@ const Custom = ({ socket }: CustomProps) => {
     };
   }, []);
 
-  useEffect(() => {
-    setUserName(selector.user?.firstName + " " + selector.user?.lastName);
-  }, []);
+ 
 
   return (
     <>

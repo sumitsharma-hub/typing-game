@@ -24,7 +24,6 @@ export default function useRecordSubmit():IUserInfo {
     try {
       const response: AxiosResponse = await Axios.post(API.V1.RECORD_SUBMIT , payload);
       const data = await response.data;
-      console.log(data,'data===============>')
       setUserData(data);
       setLoading(false);
       return data;

@@ -2,6 +2,13 @@ import { Link } from "react-router-dom";
 import { IProps } from "./types";
 
 export default function Card(props: IProps): JSX.Element {
+
+  const uniqueRoomCode=()=>{
+      var randomString = Math.random().toString(36).substr(2, 8); // Generating a random string
+      return  randomString; // Displaying the random string
+    
+    
+  }
   return (
     <div>
       <div className="block min-w-fit p-6 px-8 bg-white border border-gray-200 rounded-lg shadow  dark:bg-gray-800 dark:border-gray-700  ">
@@ -14,8 +21,7 @@ export default function Card(props: IProps): JSX.Element {
           <>
             <Link
               to={{
-                pathname:'/custom',
-                  search:'?create=value'
+                pathname:`${props.path}/${uniqueRoomCode()}`
 
               }}
               type="button"
