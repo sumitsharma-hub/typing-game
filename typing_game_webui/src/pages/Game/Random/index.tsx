@@ -1,11 +1,18 @@
 import { GaurdedLayout } from "../../../layouts";
 import { useAppSelector, useGenerateText } from "../../../hooks";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useRecordSubmit from "../../../hooks/useRecordSubmit";
 import { userSelector } from "../../../features/userSlice";
 import { useAuth } from "../../../hooks/useAuth";
+import { ProgressMeter } from "../../../components";
+import { Socket } from "socket.io-client";
+import Countdown from "../../../components/Countdown";
 
-const Random = () => {
+interface RandomType {
+  socket: Socket;
+}
+
+const Random = ({ socket }: RandomType) => {
   const { textData, loading, generateText } = useGenerateText();
   const [currentWordCompleted, setCurrentWordCompleted] = useState(false);
   const [typedText, setTypedText] = useState("");
@@ -16,21 +23,15 @@ const Random = () => {
   const [wpm, setWpm] = useState("");
   const [completed, setCompleted] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [countdownStarted, setCountdownStarted] = useState(false); // Track if countdown has started
 
   const inputRef = useRef<HTMLInputElement>(null);
   const { submitRecord } = useRecordSubmit();
   const Auth = useAuth();
 
-  useEffect(() => {
-    if (started) {
-      setStartTime(Date.now());
-      inputRef.current?.focus();
-    }
-  }, [started]);
+  const isLoggedInAuthInfo = useAppSelector((state) => state.Auth);
 
-  const selector = useAppSelector(userSelector);
   useEffect(() => {
-    console.log(Auth.isLoggedIn, "this is isLoggedIn");
     if (elapsedTime != 0 && completed == true) {
       const payload = {
         userName: selector.user?.firstName + " " + selector.user?.lastName,
@@ -42,9 +43,36 @@ const Random = () => {
         accuracy: accuracy.toFixed(2),
         elapsedTime: elapsedTime,
       };
-      submitRecord(payload);
+      if (isLoggedInAuthInfo.isLoggedIn) {
+        submitRecord(payload);
+      }
     }
   }, [completed, elapsedTime]);
+
+  useEffect(() => {
+    if (elapsedTime === 0 && completed) {
+      // Timer starts only when countdown ends and test is completed
+      setElapsedTime((Date.now() - startTime) / 1000);
+    }
+  }, [completed, elapsedTime, startTime]);
+
+  const handleCountdownEnd = () => {
+    console.log("Countdown ended!");
+    // Perform any actions you want when the countdown ends, such as starting the match
+    setStarted(true); // Start the match
+    setCountdownStarted(true); // Update countdown started status
+    setStartTime(Date.now()); // Set start time for the timer
+  };
+
+  useEffect(() => {
+    if (!started && countdownStarted) {
+      // If countdown has ended but match hasn't started, start the match automatically
+      setStarted(true);
+      setStartTime(Date.now());
+    }
+  }, [countdownStarted, started]);
+
+  const selector = useAppSelector(userSelector);
 
   const calculateAccuracy = () => {
     if (!completed) {
@@ -63,6 +91,7 @@ const Random = () => {
     if (completed || !started) {
       return 0;
     } else {
+      console.log('the match has been started-->')
       const wordCount = wordsTyped.length;
       const timeElapsedInSeconds = (Date.now() - startTime) / 1000;
       const wpmValue = (wordCount / timeElapsedInSeconds) * 60;
@@ -73,6 +102,7 @@ const Random = () => {
       return wpmSpeed;
     }
   };
+
   let matchData = "";
   for (let i = 0; i < textData.data?.length; i++) {
     matchData += textData.data[i] + " ";
@@ -92,9 +122,14 @@ const Random = () => {
 
     const totalCharactersTyped = wordTypedSoFar.length;
     setCurrentCharacterIndex(totalCharactersTyped);
+    const progress = {
+      username: isLoggedInAuthInfo.notLoggedInName,
+      wpm: wpm,
+    };
+
+    socket.emit("typing_progress", progress);
 
     const typedWords = wordTypedSoFar.trim().split(" ");
-    console.log("typedWords", wordTypedSoFar);
     setWordsTyped(typedWords);
 
     currentWordIndex = typedWords.length - 1;
@@ -146,7 +181,6 @@ const Random = () => {
       return "active-character"; // Add this condition to check if the character index is within the current word
     }
     if (wordsTyped[index] === matchData.split(" ")[index]) {
-      // setTypedText(" ");
       return "correct";
     }
     if (index < wordsTyped.length - 1) {
@@ -159,7 +193,7 @@ const Random = () => {
     setCurrentWordCompleted(false);
   }, [textData]);
 
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     setTypedText("");
     setWordsTyped([]);
     setStarted(false);
@@ -172,12 +206,15 @@ const Random = () => {
       inputRef.current?.focus();
     }
     setCompletePercentage("0");
-  };
+  }, []);
 
   if (loading) {
     return <h1>Loading......</h1>;
   }
 
+  if (!started) {
+    return <Countdown seconds={5} onCountdownEnd={handleCountdownEnd} />;
+  }
   return (
     <GaurdedLayout>
       {!completed ? (
@@ -195,29 +232,8 @@ const Random = () => {
                 </span>
               );
             })}
-            {/* {textData.data?.map((word: string, wordIndex: number) => {
-              let wordTypedSoFar = typedText.split(" ");
-              return (
-                <span
-                  key={wordIndex}
-                  className={`wordText mb-2 text-2xl font-light bg-inherit tracking-tight text-gray-900 dark:text-white`}
-                >
-                  {word.split("").map((char: string, charIndex: number) => (
-                    <span
-                      key={charIndex}
-                      className={`bg-inherit char ${
-                        currentCharacterIndex === charIndex && wordTypedSoFar[wordIndex] === word ? "correct" : ""
-                      }`}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
-              );
-            })} */}
 
             <p className="font-normal  dark:text-gray-400 bg-inherit pb-6"></p>
-
             <input
               type="text"
               id="typewords"
@@ -251,25 +267,8 @@ const Random = () => {
           </div>
         </>
       )}
-      <div>
-        <div className="flex justify-between text-center w-2/3 mt-20 mx-auto p-3 px-8 bg-white border border-gray-200 rounded-lg shadow  dark:bg-gray-800 dark:border-gray-700  ">
-          <div className="bg-inherit text-white font-semibold ">Sumit Sharma</div>
-          <div className="w-2/3 bg-gray-200 rounded-full h-2 my-auto  dark:bg-gray-700">
-            <div className="bg-green-600 h-2 rounded-full dark:bg-green-500" style={{ width: "25%" }}></div>
-          </div>
-          <div className="bg-inherit text-white font-semibold ">59.88 WPM</div>
-        </div>
-        <div className="flex justify-between w-2/3 mt-2 mx-auto p-3 px-8 bg-white border border-gray-200 rounded-lg shadow  dark:bg-gray-800 dark:border-gray-700  ">
-          <div className="bg-inherit text-white font-semibold">Gaurav Singh</div>
-          <div className="w-2/3  bg-gray-200 rounded-full h-2 my-auto   dark:bg-gray-700">
-            <div
-              className="bg-green-600 h-2 rounded-full dark:bg-green-500"
-              style={{ width: `${completePercentage}%` }}
-            ></div>
-          </div>
-          <div className="bg-inherit text-white font-semibold ">{wpm} WPM</div>
-        </div>
-      </div>
+
+      <ProgressMeter wpm={wpm} completePercentage={completePercentage} socket={socket} />
     </GaurdedLayout>
   );
 };

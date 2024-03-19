@@ -18,7 +18,6 @@ export default function useGenerateText():GenerateText {
     try{
       const response = await Axios.get(API.V1.GENERATE_TEXT);
       const data = await response.data;
-      console.log(data,'this is data');
       setTextData(data);
       setLoading(false);
     }catch(error){

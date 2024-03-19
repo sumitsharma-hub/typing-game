@@ -6,7 +6,7 @@ import Axios from "../services/axios";
 import { API, LOCAL_STORAGE_KEY } from "../constants";
 import Cookies from "js-cookie";
 import { fetchUser } from "../features/userSlice";
-import {setLoggedIn} from "../features/authSlice"
+import {setLoggedIn, setNotLoggedInName} from "../features/authSlice"
 import { ILogin, IUseAuth, IUser } from "../interfaces/user";
 import {useAppDispatch} from '.'
 
@@ -28,7 +28,6 @@ export function useAuth(): IUseAuth {
       if(response.status===201){
         setIsLoggedIn((prev)=>!prev);
         dispatch(setLoggedIn(true));
-        console.log("22222---->")
       }
       setUser(await response.data);
       await dispatch(fetchUser());
@@ -75,7 +74,7 @@ export function useAuth(): IUseAuth {
       localStorage.clear();
       setIsLoggedIn(false);
       dispatch(setLoggedIn(false));
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.log(error, "something went wrong while logging Out");
     }

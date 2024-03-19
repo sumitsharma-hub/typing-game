@@ -8,7 +8,7 @@
     "createsuperuser:dev": "ts-node src/app.ts createsuperuser",
     "createsuperuser": "node dist/app.js createsuperuser",
     "lint": "eslint --fix src/**/*.ts",
-    "start:dev": "nodemon --exec ts-node src/app.ts bootstrap",
+    "start:dev": "nodemon --exec ts-node src/app.ts bootstrap --port 8000",
     "start": "node dist/app.js bootstrap",
     "test": "jest"
   },
