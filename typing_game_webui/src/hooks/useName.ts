@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useAppDispatch } from ".";
+import { setNotLoggedInName } from "../features/authSlice";
 const NamesAdjectives = [
   "wonderfully",
   "unethically",
@@ -28,6 +30,8 @@ const NamesAdjectives = [
 export default function useName() {
   const [userNameNotLoggedIn, setUserNameNotLoggedIn] = useState("");
 
+  const dispatch=useAppDispatch();
+
   const getUniqueName = () => {
     const localStorageKey = 'userNameNotLogged';
     let PreuniqueName = localStorage.getItem(localStorageKey);
@@ -36,9 +40,9 @@ export default function useName() {
     const randomAdjective = NamesAdjectives[Math.floor(Math.random() * NamesAdjectives.length)];
     const uniqueName = `${randomAdjective}#${randomNumber}`;
     localStorage.setItem(localStorageKey,uniqueName)
+    dispatch(setNotLoggedInName({notLoggedInName:uniqueName}))
     setUserNameNotLoggedIn(uniqueName);
-    console.log(uniqueName);
-    return uniqueName;
+    // return uniqueName;
   };
 
 

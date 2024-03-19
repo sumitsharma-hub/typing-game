@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { LOCAL_STORAGE_KEY } from "../../constants";
 import { getCookies } from "../../utils";
-import { useAppDispatch, useAppSelector } from "../../hooks";
+import { useAppDispatch, useAppSelector, useName } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
 import userSlice, { fetchUser, userSelector } from "../../features/userSlice";
 import { ClearInfo } from "../../features/userSlice";
@@ -16,9 +16,10 @@ const Navbar = () => {
 
   const dispatch = useAppDispatch();
   const selector = useAppSelector(userSelector);
-  const isLoggedInAuthInfo = useAppSelector((state)=>state.Auth);
-  const loggedInStatus=isLoggedInAuthInfo.isLoggedIn;
+  const isLoggedInAuthInfo = useAppSelector((state) => state.Auth);
+  const loggedInStatus = isLoggedInAuthInfo.isLoggedIn;
   const Auth = useAuth();
+  let notLoggedInName = "";
 
   useEffect(() => {
     const { access_token } = getCookies();
@@ -30,17 +31,23 @@ const Navbar = () => {
   const userData = selector.user;
   const picture = userData?.profilePhoto;
   const provider = userData?.provider;
-  let userName: string | null = provider ? userData?.firstName : userData?.firstName + " " + userData?.lastName;
+  let userName: string | null = provider
+    ? userData?.firstName
+    : userData?.firstName === undefined || userData?.firstName === ""
+    ? isLoggedInAuthInfo.notLoggedInName
+    : userData?.firstName + " " + userData?.lastName;
+  // userName = userName ? userName : isLoggedInAuthInfo.notLoggedInName;
 
-
-  
   useEffect(() => {
-    if (!loggedInStatus) {
+    if (loggedInStatus === false) {
+      // let localStorageItem = localStorage.getItem("persist:root");
+      // const parseLocalData=JSON.parse(localStorageItem);
+      // console.log(JSON.parse(parseLocalData.Auth).notLoggedInName,'name--->')
+      notLoggedInName = isLoggedInAuthInfo.notLoggedInName;
+    } else {
       dispatch(fetchUser());
-      console.log("this is localName---->", localStorage.getItem("userNameNotLogged"), "userName-->", userName);
-      userName = localStorage.getItem("userNameNotLogged");
     }
-  }, [loggedInStatus, useAuth]);
+  }, [loggedInStatus]);
 
   const handleProfileMenuToggle = () => {
     if (showMenu) {
@@ -114,9 +121,7 @@ const Navbar = () => {
               id="user-dropdown"
             >
               <div className="px-4 py-3">
-                <span className="block text-sm text-gray-900 dark:text-white">
-                  {userName}
-                </span>
+                <span className="block text-sm text-gray-900 dark:text-white">{userName}</span>
                 <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{userData?.email}</span>
               </div>
               <ul className="py-2" aria-labelledby="user-menu-button">

@@ -10,7 +10,7 @@ export default function Card(props: IProps): JSX.Element {
     
   }
   return (
-    <div>
+    <>
       <div className="block min-w-fit p-6 px-8 bg-white border border-gray-200 rounded-lg shadow  dark:bg-gray-800 dark:border-gray-700  ">
         <h5 className="mb-2 text-2xl font-bold bg-inherit tracking-tight text-gray-900 dark:text-white">
           {props.title}
@@ -47,6 +47,6 @@ export default function Card(props: IProps): JSX.Element {
           </Link>
         )}
       </div>
-    </div>
+    </>
   );
 }

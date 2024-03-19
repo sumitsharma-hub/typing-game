@@ -1,6 +1,7 @@
 import { Browser } from "./constants";
 import { Custom, Home, Random, HTTP404, Login, Register } from "./pages";
-import store from "./store/store";
+import { store, persistor } from "./store/store"; // Import the store and persistor
+import { PersistGate } from 'redux-persist/integration/react'; // Import PersistGate
 
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -13,24 +14,23 @@ function App() {
     socket.on("connect", () => console.log(socket.id));
   }, [socket]);
 
-  
-
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <Routes>
-          <Route path={Browser.LOGIN} element={<Login />}></Route>
-          <Route path={Browser.REGISTER} element={<Register />}></Route>
-          <Route path={Browser.ROOT} element={<Home />}></Route>
-          <Route path={Browser.RANDOM}>
-            <Route path={"random"} element={<Random />} />
-            <Route path={"custom/:id"} element={<Custom socket={socket} />} />
-          </Route>
-          <Route path={Browser.HTTP_404} element={<HTTP404 />}></Route>
-          <Route path={Browser.ASTERISK} element={<HTTP404 />}></Route>
-        </Routes>
-      </BrowserRouter>
-      <br />
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <Routes>
+            <Route path={Browser.LOGIN} element={<Login />}></Route>
+            <Route path={Browser.REGISTER} element={<Register />}></Route>
+            <Route path={Browser.ROOT} element={<Home />}></Route>
+            <Route path={Browser.RANDOM}>
+              <Route path={"random"} element={<Random socket={socket}/>} />
+              <Route path={"custom/:id"} element={<Custom socket={socket} />} />
+            </Route>
+            <Route path={Browser.HTTP_404} element={<HTTP404 />}></Route>
+            <Route path={Browser.ASTERISK} element={<HTTP404 />}></Route>
+          </Routes>
+        </BrowserRouter>
+      </PersistGate>
     </Provider>
   );
 }

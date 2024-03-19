@@ -4,7 +4,8 @@ import { GaurdedLayout } from "../../../layouts";
 import { Chat, Message } from "../../../components";
 import { userSelector } from "../../../features/userSlice";
 import { useAppSelector } from "../../../hooks";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Browser } from "../../../constants";
 
 interface CustomProps {
   socket: Socket;
@@ -24,8 +25,14 @@ const Custom = ({ socket }: CustomProps) => {
   const [userList, setUserList] = useState<string[]>([]);
   const [username, setUserName] = useState("");
   const [systemMessages, setSystemMessages] = useState<string[]>([]);
+  const [creator,setCreator]=useState("");
+  const [roomsArray, setRoomsArray] = useState<string[]>([]);
+
+  const navigate=useNavigate();
 
   const selector = useAppSelector(userSelector);
+  const isLoggedInAuthInfo = useAppSelector((state) => state.Auth);
+
   const userData = selector.user;
   const picture = userData?.profilePhoto;
 
@@ -45,22 +52,38 @@ const Custom = ({ socket }: CustomProps) => {
     setShowChat(false);
   };
 
-
-  useEffect(()=>{
-    socket.emit("join_room",id, username);
-  },[])
+  useEffect(() => {
+    setUserName(
+      selector.user?.firstName === undefined || selector.user?.firstName === ""
+        ? isLoggedInAuthInfo.notLoggedInName
+        : selector.user?.firstName + " " + selector.user?.lastName
+    );
+    // setUserName(selector.user?.firstName + " " + selector.user?.lastName);
+  }, [selector]);
 
   useEffect(() => {
-    setUserName(selector.user?.firstName + " " + selector.user?.lastName);
-  }, []);
-  
+    console.log("this is userName joinRoom", username);
+    socket.on("user_data",(rooms:[], room: string)=>{
+      // setCreator(rooms[room].creator)
+      setRoomsArray(rooms)
+    })
+    if (username != "" && id != "") {
+      socket.emit("join_room", id, username);
+    }
+  }, [selector, username]);
+
 
   useEffect(() => {
     socket.on("user_joined", (updatedUserList: string[]) => {
+      console.log(roomsArray,'this is roomsArray')
+      setCreator(roomsArray[room]?.creator)
       setUserList(updatedUserList);
       const joinedMessage = `${updatedUserList[updatedUserList.length - 1]} has joined the room.`;
       setSystemMessages((prevMessages) => [...prevMessages, joinedMessage]);
     });
+
+  console.log(creator,'this is creator-->')
+
 
     socket.on("user_left", (updatedUserList: string[]) => {
       setUserList(updatedUserList);
@@ -82,14 +105,15 @@ const Custom = ({ socket }: CustomProps) => {
   const sendMessage = async () => {
     if (currentMessage !== "") {
       const messageData = {
-        room: room,
+        room: room? room : id,
         author: username,
         message: currentMessage,
         time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
         profilePhoto: picture,
       };
+      console.log(room,'this is the first user--->')
 
-      socket.emit("send_message", messageData, room);
+      socket.emit("send_message", messageData, room?room:id);
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
     }
@@ -107,7 +131,14 @@ const Custom = ({ socket }: CustomProps) => {
     };
   }, []);
 
- 
+  const startMatch=()=>{
+    console.log('this is being called start match', id)
+    socket.emit("start_match", id);
+
+
+    // navigate(`${Browser.RANDOM}/random`)
+
+  }
 
   return (
     <>
@@ -173,15 +204,20 @@ const Custom = ({ socket }: CustomProps) => {
           >
             <div className="relative w-full  max-h-full  bg-white border border-gray-200 rounded-lg shadow  dark:bg-gray-800 dark:border-gray-700">
               <div className="relative rounded-lg shadow  bg-inherit ">
+                {
+                  username===creator?
+
                 <div className="flex items-start justify-between py-4 border-b rounded-t dark:border-gray-600 bg-inherit">
                   <button
                     type="button"
                     className="text-white text-xl mx-auto bg-[#AA6319] hover:bg-[#FF9119]/80 focus:ring-4 focus:outline-none focus:ring-[#FF9119]/50 font-medium rounded-lg  px-10 py-4 text-center inline-flex items-center
                      dark:hover:bg-amber-600/80 dark:focus:ring-[#FF9119]/40 "
+                     onClick={startMatch}
                   >
                     Start Match
                   </button>
-                </div>
+                </div>:null
+                }
                 <div className="p-6 space-y-6 bg-inherit">
                   <p className="text-base leading-relaxed dark:text-white text-gray-500 bg-inherit border-gray-200">
                     Players In Lobby
@@ -228,6 +264,7 @@ const Custom = ({ socket }: CustomProps) => {
                     </button>
                   )}
                 </div>
+                <div><button className="text-white" onClick={()=>socket.emit("clear_rooms")}>clear rooms</button></div>
               </div>
             </div>
           </div>
