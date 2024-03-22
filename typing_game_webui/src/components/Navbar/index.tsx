@@ -4,7 +4,7 @@ import { LOCAL_STORAGE_KEY } from "../../constants";
 import { getCookies } from "../../utils";
 import { useAppDispatch, useAppSelector, useName } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
-import userSlice, { fetchUser, userSelector } from "../../features/userSlice";
+import { fetchUser, userSelector } from "../../features/userSlice";
 import { ClearInfo } from "../../features/userSlice";
 
 const Navbar = () => {
@@ -36,13 +36,9 @@ const Navbar = () => {
     : userData?.firstName === undefined || userData?.firstName === ""
     ? isLoggedInAuthInfo.notLoggedInName
     : userData?.firstName + " " + userData?.lastName;
-  // userName = userName ? userName : isLoggedInAuthInfo.notLoggedInName;
 
   useEffect(() => {
     if (loggedInStatus === false) {
-      // let localStorageItem = localStorage.getItem("persist:root");
-      // const parseLocalData=JSON.parse(localStorageItem);
-      // console.log(JSON.parse(parseLocalData.Auth).notLoggedInName,'name--->')
       notLoggedInName = isLoggedInAuthInfo.notLoggedInName;
     } else {
       dispatch(fetchUser());
@@ -94,16 +90,18 @@ const Navbar = () => {
               <div className="w-full h-full rounded-full">
                 {picture ? (
                   <div className="w-12 h-12 rounded-full">
-                    {picture && (
-                      //  <div className="w-12 h-12 rounded-full" dangerouslySetInnerHTML={{ __html: picture }} />
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="rounded-full"
-                        width="100%"
-                        height="100%"
-                        dangerouslySetInnerHTML={{ __html: picture }}
-                      />
-                    )}
+                    {picture &&
+                      (picture.startsWith("<svg") ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="rounded-full"
+                          width="100%"
+                          height="100%"
+                          dangerouslySetInnerHTML={{ __html: picture }}
+                        />
+                      ) : (
+                        <img className="rounded-full" src={picture} alt="" />
+                      ))}
                   </div>
                 ) : (
                   <img
@@ -151,11 +149,11 @@ const Navbar = () => {
                 </li>
                 <li>
                   <a
-                    href={CookieAccessToken || localStorageToken ? "#" : "/login"}
-                    onClick={(e) => (CookieAccessToken || localStorageToken ? handleLogout(e) : null)}
+                    href={localStorageToken && loggedInStatus ? "#" : "/login"}
+                    onClick={(e) => (loggedInStatus ? handleLogout(e) : null)}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                   >
-                    {CookieAccessToken || localStorageToken ? "SignOut" : "Sign in"}
+                    {loggedInStatus ? "SignOut" : "Sign in"}
                   </a>
                 </li>
               </ul>

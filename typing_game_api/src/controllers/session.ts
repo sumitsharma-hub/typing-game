@@ -120,7 +120,7 @@ export default class SessionController {
       // localStorage.setItem('X-TYPING-GAME-TOKEN',access_token);
 
       // const { access_token: accessToken, refresh_token } = await signToken();
-      return response.status(200).redirect(`http://localhost:3000/game/random`);
+      return response.status(200).redirect(`http://localhost:3000`);
     } catch (err: any) {
       console.error("Failed to handle Google OAuth callback", err);
       return response.status(404).redirect(`http://localhost:3000`);

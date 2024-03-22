@@ -25,14 +25,25 @@ const Chat: React.FC<ChatProps> = ({ author, message,profilePhoto }) => {
               <div className="h-full w-full rounded-full align-center flex dark:bg-gray-800">
                 {picture && (
                   //  <div className="w-12 h-12 rounded-full" dangerouslySetInnerHTML={{ __html: picture }} />
+                //   <svg
+                //     xmlns="http://www.w3.org/2000/svg"
+                //     className="bg-inherit py-1"
+                //     width="100%"
+                //     height="100%"
+                //     dangerouslySetInnerHTML={{ __html: picture }}
+                //   />
+                // )}
+                picture.startsWith("<svg") ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="bg-inherit py-1"
+                    className="rounded-full w-12 h-12"
                     width="100%"
                     height="100%"
                     dangerouslySetInnerHTML={{ __html: picture }}
                   />
-                )}
+                ) : (
+                  <img className="rounded-full w-12 h-12" src={picture} alt="" />
+                ))}
               </div>
             ) : (
               <img

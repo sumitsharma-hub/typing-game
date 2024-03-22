@@ -118,8 +118,7 @@ export function createSocketConnection(server: Server) {
             io.to(room).emit("user_left", rooms[room].users);
         }
     }
-      // rooms={}
-      console.log('rooms cleared', rooms)
+      rooms={}
       // rooms.forEach((room) =>rooms.creator="", rooms.delete(room);
     })
   });

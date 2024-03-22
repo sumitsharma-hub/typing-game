@@ -11,7 +11,6 @@ export default class AccountService {
     if (!match) return null;
 
     if (user.token == null) {
-      console.log('this is login payload', user);
       user.token = { key: generateKey() };
       user.lastLogin = new Date();
       if (user.profilePhoto==null) {

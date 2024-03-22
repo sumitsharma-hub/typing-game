@@ -1,45 +1,42 @@
-import { MutableRefObject, useRef,useEffect } from "react";
+import { MutableRefObject, useRef, useEffect } from "react";
 import { getGoogleAuthUrl } from "../../utils";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchProfile, profileSelector } from "../../features/profileSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks";
+import Cookies from "js-cookie";
+import { setLoggedIn } from "../../features/authSlice";
 
 function Login() {
-  const { login,isLoggedIn } = useAuth();
+  const { login, isLoggedIn } = useAuth();
   const inputEmail: MutableRefObject<HTMLInputElement> = useRef(null!);
   const inputPassword: MutableRefObject<HTMLInputElement> = useRef(null!);
   const dispatch = useAppDispatch();
-  const selector=useAppSelector(profileSelector);
+  const selector = useAppSelector(profileSelector);
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(fetchProfile());
-  },[])
+  }, []);
 
  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const profilePhoto=selector?.profileImage;
+    const profilePhoto = selector?.profileImage;
 
     const loginPayload = {
       email: inputEmail.current?.value,
       password: inputPassword.current?.value,
-      profilePhoto:profilePhoto,
+      profilePhoto: profilePhoto,
     };
     await login(loginPayload);
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      // Do something after successful login, for example, redirect to another page
-      console.log('User is logged in!((((((((((((()))))))))))))) 1111', isLoggedIn);
-    }
-  }, [isLoggedIn]);
+  
 
   return (
     <div>
-      <section className="bg-gray-50 dark:bg-gray-900">
-        <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid place-items-center gap-8 lg:gap-16 bg-inherit">
+      <section className="bg-gray-50 dark:bg-gray-900 h-screen">
+        <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid place-items-center gap-8 lg:gap-16 bg-inherit h-full">
           <div className="flex justify-center w-100% mx-auto ">
             <div className="w-full lg:max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow-xl dark:bg-gray-800">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white bg-inherit">Sign in to Keygen</h2>
@@ -102,8 +99,7 @@ function Login() {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
                     viewBox="0 0 18 19"
-                    style={{background:'inherit'}}
-                    
+                    style={{ background: "inherit" }}
                   >
                     <path
                       fill-rule="evenodd"
