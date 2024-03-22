@@ -37,12 +37,12 @@ function Register() {
   };
 
   return (
-    <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid place-items-center gap-8 lg:gap-16 bg-inherit  ">
-      <form className="rounded-lg shadow-xl drop-shadow-sm  p-10 border-white border-2">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white bg-inherit">Register </h2>
-        <div className="py-8 grid justify-between grid-flow-col-dense gap-8">
-          <div className="">
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+    <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid place-items-center gap-8 lg:gap-16   ">
+      <form className="rounded-lg  p-10 dark:bg-gray-800">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white bg-inherit ">Register </h2>
+        <div className="py-8 grid justify-between grid-flow-col-dense gap-8 dark:bg-gray-800">
+          <div className="bg-inherit">
+            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white bg-inherit">
               First name
             </label>
             <input
@@ -56,8 +56,8 @@ function Register() {
               onChange={(e) => handleInputChange(e)}
             />
           </div>
-          <div>
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          <div className="bg-inherit">
+            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white bg-inherit">
               Last name
             </label>
             <input
@@ -72,8 +72,8 @@ function Register() {
             />
           </div>
         </div>
-        <div className="mb-6">
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+        <div className="mb-6 bg-inherit">
+          <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white bg-inherit">
             Your email
           </label>
           <input
@@ -87,8 +87,8 @@ function Register() {
             required
           />
         </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+        <div className="mb-6 bg-inherit">
+          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white bg-inherit">
             Your password
           </label>
           <input
@@ -102,8 +102,8 @@ function Register() {
             required
           />
         </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+        <div className="mb-6 bg-inherit">
+          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white bg-inherit">
             Confirm password
           </label>
           <input
@@ -121,7 +121,7 @@ function Register() {
         <button
           type="submit"
           onClick={(e) => handleRegisteration(e)}
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Submit
         </button>
@@ -129,10 +129,10 @@ function Register() {
         <a
           href={getGoogleAuthUrl()}
           type="button"
-          className="text-white mt-5 mx-auto bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2"
+          className="text-white wflex justify-center mt-5 mx-auto bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2"
         >
           <svg
-            className="w-4 h-4 mr-2"
+            className="w-4 h-4 mr-2 bg-inherit"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
