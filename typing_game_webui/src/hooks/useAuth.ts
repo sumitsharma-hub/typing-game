@@ -6,18 +6,18 @@ import Axios from "../services/axios";
 import { API, LOCAL_STORAGE_KEY } from "../constants";
 import Cookies from "js-cookie";
 import { fetchUser } from "../features/userSlice";
-import {setLoggedIn, setNotLoggedInName} from "../features/authSlice"
+import { setLoggedIn, setNotLoggedInName } from "../features/authSlice";
 import { ILogin, IUseAuth, IUser } from "../interfaces/user";
-import {useAppDispatch} from '.'
-
+import { useAppDispatch, useName } from ".";
 
 export function useAuth(): IUseAuth {
   const [user, setUser] = useState<IUser>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-  const dispatch=useAppDispatch();
-  
-  const login = async (loginPayload: ILogin) => {    
+  const dispatch = useAppDispatch();
+  const { getUniqueName } = useName();
+
+  const login = async (loginPayload: ILogin) => {
     try {
       const response = await Axios.post(API.V1.ACCOUNT_LOGIN, loginPayload);
       if (response.status === 401) {
@@ -25,9 +25,10 @@ export function useAuth(): IUseAuth {
       }
       const AccessToken = response.data.token;
       localStorage.setItem(LOCAL_STORAGE_KEY, AccessToken);
-      if(response.status===201){
-        setIsLoggedIn((prev)=>!prev);
+      if (response.status === 201) {
+        setIsLoggedIn((prev) => !prev);
         dispatch(setLoggedIn(true));
+        console.log("this is response.data---->", response.data);
       }
       setUser(await response.data);
       await dispatch(fetchUser());
@@ -74,14 +75,13 @@ export function useAuth(): IUseAuth {
       localStorage.clear();
       setIsLoggedIn(false);
       dispatch(setLoggedIn(false));
+      // getUniqueName();
+
       navigate("/");
     } catch (error) {
       console.log(error, "something went wrong while logging Out");
     }
   };
 
-
- 
-
-  return {isLoggedIn, login, register, logout, user };
+  return { isLoggedIn, login, register, logout, user };
 }
