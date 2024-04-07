@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector, useName } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchUser, userSelector } from "../../features/userSlice";
 import { ClearInfo } from "../../features/userSlice";
+import { setNotLoggedInName } from "../../features/authSlice";
 
 const Navbar = () => {
   const [CookieAccessToken, setCookieAccessToken] = useState<string | undefined>("");
@@ -19,6 +20,7 @@ const Navbar = () => {
   const isLoggedInAuthInfo = useAppSelector((state) => state.Auth);
   const loggedInStatus = isLoggedInAuthInfo.isLoggedIn;
   const Auth = useAuth();
+  const { getUniqueName } = useName();
   let notLoggedInName = "";
 
   useEffect(() => {
@@ -31,16 +33,23 @@ const Navbar = () => {
   const userData = selector.user;
   const picture = userData?.profilePhoto;
   const provider = userData?.provider;
-  let userName: string | null = provider
-    ? userData?.firstName
-    : userData?.firstName === undefined || userData?.firstName === ""
-    ? isLoggedInAuthInfo.notLoggedInName
-    : userData?.firstName + " " + userData?.lastName;
+
+  let userName: string | null = null;
+
+  if (provider) {
+    userName = userData?.firstName;
+  } else if (userData?.firstName || userData?.lastName) {
+    userName = `${userData?.firstName} ${userData?.lastName}`;
+  } else if (!loggedInStatus) {
+    userName = isLoggedInAuthInfo.notLoggedInName;
+  }
 
   useEffect(() => {
     if (loggedInStatus === false) {
       notLoggedInName = isLoggedInAuthInfo.notLoggedInName;
+      // dispatch(setNotLoggedInName(notLoggedInName))
     } else {
+      dispatch(setNotLoggedInName({ notLoggedInName: userName }));
       dispatch(fetchUser());
     }
   }, [loggedInStatus]);
@@ -61,6 +70,7 @@ const Navbar = () => {
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(ClearInfo());
+    getUniqueName();
     Auth.logout();
   };
 
@@ -90,18 +100,17 @@ const Navbar = () => {
               <div className="w-full h-full rounded-full">
                 {picture ? (
                   <div className="w-12 h-12 rounded-full">
-                    {picture &&
-                      (picture.startsWith("<svg") ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="rounded-full"
-                          width="100%"
-                          height="100%"
-                          dangerouslySetInnerHTML={{ __html: picture }}
-                        />
-                      ) : (
-                        <img className="rounded-full" src={picture} alt="" />
-                      ))}
+                    {picture.startsWith("<svg") ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="rounded-full"
+                        width="100%"
+                        height="100%"
+                        dangerouslySetInnerHTML={{ __html: picture }}
+                      />
+                    ) : (
+                      picture.startsWith("https") && <img className=" w-12 h-12 rounded-full" src={picture} alt="" />
+                    )}
                   </div>
                 ) : (
                   <img
