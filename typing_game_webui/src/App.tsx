@@ -1,5 +1,5 @@
 import { Browser } from "./constants";
-import { Custom, Home, Random, HTTP404, Login, Register } from "./pages";
+import { Custom, Home, Random, HTTP404, Login, Register , JoinGame} from "./pages";
 import { store, persistor } from "./store/store"; // Import the store and persistor
 import { PersistGate } from 'redux-persist/integration/react'; // Import PersistGate
 
@@ -25,6 +25,7 @@ function App() {
             <Route path={Browser.RANDOM}>
               <Route path={"random"} element={<Random socket={socket}/>} />
               <Route path={"custom/:id"} element={<Custom socket={socket} />} />
+              <Route path={"custom/join-game"} element={<JoinGame socket={socket} />} />
             </Route>
             <Route path={Browser.HTTP_404} element={<HTTP404 />}></Route>
             <Route path={Browser.ASTERISK} element={<HTTP404 />}></Route>
