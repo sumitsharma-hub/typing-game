@@ -1,6 +1,3 @@
-import { fetchUser } from "../features/userSlice";
-import { useAppDispatch } from "../hooks";
-
 const getGoogleAuthUrl = () => {
   const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 
