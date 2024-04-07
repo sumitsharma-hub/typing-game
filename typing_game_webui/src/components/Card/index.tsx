@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { IProps } from "./types";
+import { useAppDispatch } from "../../hooks";
+import { setGameType } from "../../features/roomDataSilce";
 
 export default function Card(props: IProps): JSX.Element {
+  const uniqueRoomCode = () => {
+    var randomString = Math.random().toString(36).substr(2, 8); // Generating a random string
+    return randomString; // Displaying the random string
+  };
+  const dispatch = useAppDispatch();
 
-  const uniqueRoomCode=()=>{
-      var randomString = Math.random().toString(36).substr(2, 8); // Generating a random string
-      return  randomString; // Displaying the random string
-    
-    
-  }
   return (
     <>
       <div className="block min-w-fit p-6 px-8 bg-white border border-gray-200 rounded-lg shadow  dark:bg-gray-800 dark:border-gray-700  ">
@@ -21,8 +22,7 @@ export default function Card(props: IProps): JSX.Element {
           <>
             <Link
               to={{
-                pathname:`${props.path}/${uniqueRoomCode()}`
-
+                pathname: `${props.path}/${uniqueRoomCode()}`,
               }}
               type="button"
               className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
@@ -30,7 +30,7 @@ export default function Card(props: IProps): JSX.Element {
               {props.createButton}
             </Link>
             <Link
-              to={props.path}
+              to={`${props.path}/join-game`}
               type="button"
               className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
             >
@@ -41,6 +41,7 @@ export default function Card(props: IProps): JSX.Element {
           <Link
             to={props.path}
             type="button"
+            onClick={props.onclick==='random'?()=> dispatch(setGameType("random")):()=> dispatch(setGameType("nothing"))}
             className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
           >
             {props.button}
