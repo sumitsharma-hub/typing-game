@@ -1,5 +1,5 @@
 import { GaurdedLayout } from "../../../layouts";
-import { useAppSelector, useGenerateText } from "../../../hooks";
+import { useAppDispatch, useAppSelector, useGenerateText } from "../../../hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useRecordSubmit from "../../../hooks/useRecordSubmit";
 import { userSelector } from "../../../features/userSlice";
@@ -7,13 +7,14 @@ import { useAuth } from "../../../hooks/useAuth";
 import { ProgressMeter } from "../../../components";
 import { Socket } from "socket.io-client";
 import Countdown from "../../../components/Countdown";
+import { setGameType, setRoomTextData } from "../../../features/roomDataSilce";
 
 interface RandomType {
   socket: Socket;
 }
 
 const Random = ({ socket }: RandomType) => {
-  const { textData, loading, generateText } = useGenerateText();
+  let { textData, loading, generateText, setTextData } = useGenerateText();
   const [currentWordCompleted, setCurrentWordCompleted] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [wordsTyped, setWordsTyped] = useState<string[]>([]);
@@ -21,15 +22,47 @@ const Random = ({ socket }: RandomType) => {
   const [startTime, setStartTime] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [wpm, setWpm] = useState("");
+  const [completePercentage, setCompletePercentage] = useState("0");
+  const [currentCharacterIndex, setCurrentCharacterIndex] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [countdownStarted, setCountdownStarted] = useState(false); // Track if countdown has started
+  const [roomId, setRoomId] = useState();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const { submitRecord } = useRecordSubmit();
   const Auth = useAuth();
 
   const isLoggedInAuthInfo = useAppSelector((state) => state.Auth);
+  const roomTextData = useAppSelector((state) => state.room);
+  const selector = useAppSelector(userSelector);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    socket.on("checkworking", (data) => {
+      console.log("this is workindication", data);
+    });
+    socket.emit("random_page_data");
+  }, [socket]);
+
+  useEffect(() => {
+    // generateText();
+    socket.emit("random_page_data");
+    socket.on("typing_text_data", (matchTextData) => {
+      const { matchText, id, rooms } = matchTextData;
+      setRoomId(id);
+      dispatch(setGameType("custom"));
+      setTextData(matchText);
+    });
+    if (roomTextData.gameType === "random") {
+      generateText();
+    }
+    // return () => {
+    //   console.log('this is called for cleaup fnction--->')
+    //   socket.off("typing_text_data");
+    // };
+  }, [socket]);
 
   useEffect(() => {
     if (elapsedTime != 0 && completed == true) {
@@ -72,8 +105,6 @@ const Random = ({ socket }: RandomType) => {
     }
   }, [countdownStarted, started]);
 
-  const selector = useAppSelector(userSelector);
-
   const calculateAccuracy = () => {
     if (!completed) {
       // If the test is completed, calculate accuracy
@@ -91,7 +122,6 @@ const Random = ({ socket }: RandomType) => {
     if (completed || !started) {
       return 0;
     } else {
-      console.log('the match has been started-->')
       const wordCount = wordsTyped.length;
       const timeElapsedInSeconds = (Date.now() - startTime) / 1000;
       const wpmValue = (wordCount / timeElapsedInSeconds) * 60;
@@ -103,6 +133,18 @@ const Random = ({ socket }: RandomType) => {
     }
   };
 
+  const calculateCompletionPercentage = () => {
+    if (completed) {
+      return 100;
+    } else {
+      const charactersTyped = typedText.length;
+      const totalCharacters = matchData.length;
+      const percentageCompleted = (charactersTyped / totalCharacters) * 100;
+      let percentageValue = "";
+      setCompletePercentage(percentageValue + Math.round(percentageCompleted));
+    }
+  };
+
   let matchData = "";
   for (let i = 0; i < textData.data?.length; i++) {
     matchData += textData.data[i] + " ";
@@ -111,6 +153,7 @@ const Random = ({ socket }: RandomType) => {
 
   let wordTypedSoFar = "";
   let currentWordIndex;
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setTypedText(value);
@@ -125,10 +168,11 @@ const Random = ({ socket }: RandomType) => {
     const progress = {
       username: isLoggedInAuthInfo.notLoggedInName,
       wpm: wpm,
+      id: roomId,
+      completePercentage,
     };
-
+    console.log(completePercentage, "progress");
     socket.emit("typing_progress", progress);
-
     const typedWords = wordTypedSoFar.trim().split(" ");
     setWordsTyped(typedWords);
 
@@ -150,21 +194,6 @@ const Random = ({ socket }: RandomType) => {
       }
     }
   };
-
-  const [completePercentage, setCompletePercentage] = useState("0");
-  const calculateCompletionPercentage = () => {
-    if (completed) {
-      return 100;
-    } else {
-      const charactersTyped = typedText.length;
-      const totalCharacters = matchData.length;
-      const percentageCompleted = (charactersTyped / totalCharacters) * 100;
-      let percentageValue = "";
-      setCompletePercentage(percentageValue + Math.round(percentageCompleted));
-    }
-  };
-
-  const [currentCharacterIndex, setCurrentCharacterIndex] = useState(0);
 
   const getWordStatus = (index: number) => {
     if (index >= wordsTyped.length) {
@@ -213,7 +242,7 @@ const Random = ({ socket }: RandomType) => {
   }
 
   if (!started) {
-    return <Countdown seconds={5} onCountdownEnd={handleCountdownEnd} />;
+    return <Countdown seconds={2} onCountdownEnd={handleCountdownEnd} />;
   }
   return (
     <GaurdedLayout>
@@ -267,8 +296,12 @@ const Random = ({ socket }: RandomType) => {
           </div>
         </>
       )}
+      {/* {roomsArray.map((room:string) => {
+        return <ProgressMeter wpm={wpm} userName={room} completePercentage={completePercentage} socket={socket} />;
+      })} */}
 
-      <ProgressMeter wpm={wpm} completePercentage={completePercentage} socket={socket} />
+      {/* <ProgressMeter wpm={wpm} completePercentage={completePercentage} socket={socket} />*/}
+      <ProgressMeter socket={socket} />
     </GaurdedLayout>
   );
 };
