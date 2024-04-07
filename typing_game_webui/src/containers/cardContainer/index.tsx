@@ -10,6 +10,7 @@ const Cards = () => {
             subTitle="Join a match, anywhere, instantly, worldwide."
             button="random"
             path="game/random"
+            onclick="random"
           />
         </div>
         <div className="flex flex-col justify-between">
