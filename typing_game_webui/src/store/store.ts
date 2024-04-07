@@ -22,16 +22,20 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import UserReducer from '../features/userSlice';
 import profileReducer from '../features/profileSlice';
 import userAuthInfo from '../features/authSlice';
+import roomDataSilce from '../features/roomDataSilce';
 
 const persistConfig = {
   key: 'root',
   storage,
+  // blacklist: ['room'], // Exclude roomSlice from persisting
+
 };
 
 const rootReducer = combineReducers({
   userInfo: UserReducer,
   profile: profileReducer,
   Auth: userAuthInfo,
+  room:roomDataSilce,
   // Add any other reducers here
 });
 

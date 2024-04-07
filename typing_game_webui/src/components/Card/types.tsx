@@ -5,6 +5,7 @@ export interface IProps {
     createButton?:string;
     joinButton?:string;
     path:string;
+    onclick?:string;
   }
   
   export interface IState {}

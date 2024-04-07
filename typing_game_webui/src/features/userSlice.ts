@@ -32,7 +32,7 @@ const initialState: UserState = {
 
 export const fetchUser = createAsyncThunk("fetchUserInfo", async () => {
   const response = await Axios.get(API.V1.ACCOUNT_DETAILS);
-  const data = response.data;
+  const data = response.data;  
   return data;
 });
 

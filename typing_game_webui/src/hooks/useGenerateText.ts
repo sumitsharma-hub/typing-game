@@ -3,32 +3,33 @@ import { useEffect, useState } from "react";
 import { API } from "../constants";
 import { IWord } from "../interfaces/word";
 import Axios from "../services/axios";
+import { useAppDispatch } from ".";
+import { setRoomTextData } from "../features/roomDataSilce";
 
-export interface GenerateText{
-  textData:IWord | {data:[]};
-  loading:boolean;
-  generateText:()=>Promise<void>;
+export interface GenerateText {
+  textData: IWord | { data: [] };
+  loading: boolean;
+  generateText: () => Promise<void>;
+  setTextData: Function;
 }
 
-export default function useGenerateText():GenerateText {
+export default function useGenerateText(): GenerateText {
   const [textData, setTextData] = useState<IWord>({ data: [""] });
   const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const generateText = async () =>{
-    try{
+  const generateText = async () => {
+    try {
       const response = await Axios.get(API.V1.GENERATE_TEXT);
       const data = await response.data;
       setTextData(data);
       setLoading(false);
-    }catch(error){
-      console.log(error,'something went wrong while fetching text')
+      dispatch(setRoomTextData(data));
+    } catch (error) {
+      console.log(error, "something went wrong while fetching text");
     }
   };
 
-  useEffect((): void => {
-    setLoading(true);
-    generateText();
-  }, []);
 
-  return {textData, loading, generateText};
+  return { textData, loading, generateText, setTextData };
 }
