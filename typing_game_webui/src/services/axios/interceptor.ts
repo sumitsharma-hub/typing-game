@@ -5,7 +5,7 @@ import {
     InternalAxiosRequestConfig,
   } from "axios";
   
-  import { Browser, LOCAL_STORAGE_KEY } from "../../constants";
+  import {  LOCAL_STORAGE_KEY } from "../../constants";
   
   const onRequest = (
     config: InternalAxiosRequestConfig

@@ -3,11 +3,12 @@ import { useAppDispatch, useAppSelector, useGenerateText } from "../../../hooks"
 import { useCallback, useEffect, useRef, useState } from "react";
 import useRecordSubmit from "../../../hooks/useRecordSubmit";
 import { userSelector } from "../../../features/userSlice";
-import { useAuth } from "../../../hooks/useAuth";
 import { ProgressMeter } from "../../../components";
 import { Socket } from "socket.io-client";
 import Countdown from "../../../components/Countdown";
-import { setGameType, setRoomTextData } from "../../../features/roomDataSilce";
+import { setGameType } from "../../../features/roomDataSilce";
+import { Browser } from "../../../constants";
+import { useNavigate } from "react-router-dom";
 
 interface RandomType {
   socket: Socket;
@@ -29,14 +30,15 @@ const Random = ({ socket }: RandomType) => {
   const [countdownStarted, setCountdownStarted] = useState(false); // Track if countdown has started
   const [roomId, setRoomId] = useState();
 
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const { submitRecord } = useRecordSubmit();
-  const Auth = useAuth();
 
   const isLoggedInAuthInfo = useAppSelector((state) => state.Auth);
   const roomTextData = useAppSelector((state) => state.room);
   const selector = useAppSelector(userSelector);
 
+  const currentId = localStorage.getItem("currentId");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -48,13 +50,26 @@ const Random = ({ socket }: RandomType) => {
 
   useEffect(() => {
     // generateText();
+    socket.on("restartStats", () => {
+      setTypedText("");
+      setWordsTyped([]);
+      setStarted(false);
+      setCompleted(false);
+      setAccuracy(100);
+      setWpm("0");
+      setCompletePercentage("0")
+      navigate(`${Browser.RANDOM}/custom/${roomTextData.currentRoomId}`);
+    });
+    socket.emit("match_text", { matchText: roomTextData.roomTextData, id: roomId });
+
     socket.emit("random_page_data");
     socket.on("typing_text_data", (matchTextData) => {
-      const { matchText, id, rooms } = matchTextData;
+      const { matchText, id } = matchTextData;
       setRoomId(id);
       dispatch(setGameType("custom"));
       setTextData(matchText);
     });
+
     if (roomTextData.gameType === "random") {
       generateText();
     }
@@ -154,6 +169,8 @@ const Random = ({ socket }: RandomType) => {
   let wordTypedSoFar = "";
   let currentWordIndex;
 
+  console.log(wpm,'this is wordpressminute--------->')
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setTypedText(value);
@@ -168,11 +185,11 @@ const Random = ({ socket }: RandomType) => {
     const progress = {
       username: isLoggedInAuthInfo.notLoggedInName,
       wpm: wpm,
-      id: roomId,
+      id: roomTextData.currentRoomId,
       completePercentage,
     };
-    console.log(completePercentage, "progress");
     socket.emit("typing_progress", progress);
+
     const typedWords = wordTypedSoFar.trim().split(" ");
     setWordsTyped(typedWords);
 
@@ -184,6 +201,13 @@ const Random = ({ socket }: RandomType) => {
         // The entire text is typed correctly
         if (wordTypedSoFar === matchData) {
           setCompleted(true);
+          const progressUpdate = {
+            username: isLoggedInAuthInfo.notLoggedInName,
+            wpm: wpm,
+            id: roomTextData.currentRoomId,
+            completePercentage: "100",
+          };
+          socket.emit("typing_progress", progressUpdate);
         }
         calculateSpeed();
         calculateAccuracy();
@@ -194,6 +218,7 @@ const Random = ({ socket }: RandomType) => {
       }
     }
   };
+  
 
   const getWordStatus = (index: number) => {
     if (index >= wordsTyped.length) {
@@ -206,7 +231,6 @@ const Random = ({ socket }: RandomType) => {
       return "default";
     }
     if (index === wordsTyped.length - 1 && currentCharacterIndex < matchData.split(" ")[index].length) {
-      console.log("this is called");
       return "active-character"; // Add this condition to check if the character index is within the current word
     }
     if (wordsTyped[index] === matchData.split(" ")[index]) {
@@ -230,6 +254,7 @@ const Random = ({ socket }: RandomType) => {
     setAccuracy(100);
     setWpm("0");
     generateText();
+    socket.emit("restart", roomTextData.currentRoomId);
 
     if (inputRef.current) {
       inputRef.current?.focus();
@@ -276,12 +301,15 @@ const Random = ({ socket }: RandomType) => {
               autoComplete="off"
               ref={inputRef}
             />
-            <button
-              className=" mt-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-              onClick={handleRestart}
-            >
-              Restart
-            </button>
+            {(roomTextData.gameType === "custom" && isLoggedInAuthInfo.notLoggedInName === roomTextData.roomCreator) ||
+            roomTextData.gameType === "random" ? (
+              <button
+                className=" mt-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                onClick={handleRestart}
+              >
+                Restart
+              </button>
+            ) : null}
           </div>
         </>
       ) : (
@@ -290,9 +318,18 @@ const Random = ({ socket }: RandomType) => {
             <div className=" bg-inherit">ElapsedTime: {elapsedTime}s</div>
             <div className=" bg-inherit">Accuracy: {accuracy.toFixed(2)}%</div>
             <div className=" bg-inherit">Words Per Minute: {wpm} WPM</div>
-            <button className="bg-inherit text-white font-semibold " onClick={handleRestart}>
+            {/* <button className="bg-inherit text-white font-semibold " onClick={handleRestart}>
               Restart
-            </button>
+            </button> */}
+            {(roomTextData.gameType === "custom" && isLoggedInAuthInfo.notLoggedInName === roomTextData.roomCreator) ||
+            roomTextData.gameType === "random" ? (
+              <button
+                className=" mt-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                onClick={handleRestart}
+              >
+                Restart
+              </button>
+            ) : null}
           </div>
         </>
       )}

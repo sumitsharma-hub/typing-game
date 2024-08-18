@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
 
 import { API } from "../constants";
 import { IWord } from "../interfaces/word";
 import Axios from "../services/axios";
 import { useAppDispatch } from ".";
 import { setRoomTextData } from "../features/roomDataSilce";
+import { useState } from "react";
 
 export interface GenerateText {
   textData: IWord | { data: [] };

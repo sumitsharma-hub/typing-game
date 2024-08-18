@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Assuming you are using react-router for navigation
 import { Socket } from "socket.io-client";
 
@@ -9,7 +9,8 @@ const JoinGame = ({ socket }: CustomProps) => {
   const [roomId, setRoomId] = useState("");
   const navigate = useNavigate();
 
-  const handleInputChange = (event) => {
+  
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRoomId(event.target.value);
   };
 

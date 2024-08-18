@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { useState } from "react";
 import { API } from "../constants";
 import Axios from "../services/axios";
