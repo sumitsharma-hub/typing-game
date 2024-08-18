@@ -37,6 +37,7 @@ export function createSocketConnection(server: Server) {
     id: string;
   }
 
+  console.log(rooms, "this is rooms-->");
   // Initialize typingProgress as an array of UserProgress objects
   let typingProgress: UserProgress[] = [];
 
@@ -70,7 +71,10 @@ export function createSocketConnection(server: Server) {
         io.to(socket.id).emit("room_found", "Room found");
       }
     });
-    
+
+    socket.on("restart", (roomId) => {
+      io.to(roomId).emit("restartStats");
+    });
 
     socket.on("start_match", (room) => {
       io.to(room).emit("checkworking", "hello");
@@ -88,7 +92,6 @@ export function createSocketConnection(server: Server) {
           };
 
           socket.on("random_page_data", () => {
-            console.log("Match text data:", matchTextData);
             io.to(room).emit("typing_text_data", matchTextData);
           });
 
@@ -117,8 +120,7 @@ export function createSocketConnection(server: Server) {
 
     // Listen for typing progress updates from clients
     socket.on("typing_progress", (progress: UserProgress) => {
-      console.log("Typing progress:", progress);
-
+      console.log("this is being called typing_progress--->>>------------>", progress);
       // Check if the user is already in the typingProgress array
       const existingUserIndex = typingProgress.findIndex((user) => user.username === progress.username);
       console.log({ existingUserIndex });
@@ -128,12 +130,12 @@ export function createSocketConnection(server: Server) {
       } else {
         // Add new user progress
         typingProgress.push(progress);
-        console.log("pushed:", { typingProgress });
       }
 
       // Emit updated typing progress to all clients in the room
       io.to(progress.id).emit("typing_progress_update", typingProgress);
     });
+    
 
     socket.on("leave_room", (room, username) => {
       console.log("leave", rooms);

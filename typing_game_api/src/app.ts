@@ -1,6 +1,8 @@
 import yargs, { type Argv, type ArgumentsCamelCase } from 'yargs'
 
 import { bootstrap, createsuperuser } from './cli'
+import urlpatterns from './routes'
+
 
 yargs
   .strict()
