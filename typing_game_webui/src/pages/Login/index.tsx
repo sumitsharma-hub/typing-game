@@ -3,11 +3,9 @@ import { getGoogleAuthUrl } from "../../utils";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchProfile, profileSelector } from "../../features/profileSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import Cookies from "js-cookie";
-import { setLoggedIn } from "../../features/authSlice";
 
 function Login() {
-  const { login, isLoggedIn } = useAuth();
+  const { login } = useAuth();
   const inputEmail: MutableRefObject<HTMLInputElement> = useRef(null!);
   const inputPassword: MutableRefObject<HTMLInputElement> = useRef(null!);
   const dispatch = useAppDispatch();

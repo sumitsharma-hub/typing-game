@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import  { fetchProfile } from "../../features/profileSlice";
 
 function Register() {
-  const { login, register, logout } = useAuth();
+  const {  register } = useAuth();
   const dispatch = useAppDispatch();
   const selector = useAppSelector((state) => state.profile);
   const [formData, setFormData] = useState({

@@ -5,12 +5,16 @@ interface roomDataState {
   roomTextData: IWord | { data: [] };
   roomId: string;
   gameType: string;
+  roomCreator: string;
+  currentRoomId: string;
 }
 
 const initialState: roomDataState = {
   roomTextData: { data: [""] },
   roomId: "",
   gameType: "random",
+  roomCreator: "",
+  currentRoomId: "",
 };
 
 const roomDataSlice = createSlice({
@@ -26,9 +30,16 @@ const roomDataSlice = createSlice({
     setGameType: (state, action) => {
       state.gameType = action.payload;
     },
+    setRoomCreator: (state, action) => {
+      state.roomCreator = action.payload;
+    },
+    setCurrentRoomId: (state, action) => {
+      state.currentRoomId = action.payload;
+    },
   },
 });
 
-export const { setRoomTextData, setNotLoggedInName, setGameType } = roomDataSlice.actions;
+export const { setRoomTextData, setNotLoggedInName, setGameType, setRoomCreator, setCurrentRoomId } =
+  roomDataSlice.actions;
 // export const selectIsLoggedIn = (state: { auth: AuthState }): boolean => state.auth.isLoggedIn;
 export default roomDataSlice.reducer;

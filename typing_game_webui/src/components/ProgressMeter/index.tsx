@@ -16,6 +16,7 @@ const ProgressMeter: React.FC<ProgressMeterProps> = ({ socket }) => {
   useEffect(() => {
     socket.on("typing_progress_update", (progress: UserProgress[]) => {
       setTypingProgress(progress);
+      console.log(progress,'this is progress update--->');
     });
 
     return () => {

@@ -6,7 +6,7 @@ import { userSelector } from "../../../features/userSlice";
 import { useAppDispatch, useAppSelector, useGenerateText } from "../../../hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { Browser } from "../../../constants";
-import { setGameType } from "../../../features/roomDataSilce";
+import { setCurrentRoomId, setGameType, setRoomCreator } from "../../../features/roomDataSilce";
 
 interface CustomProps {
   socket: Socket;
@@ -21,7 +21,7 @@ interface Imessage {
 }
 
 const Custom = ({ socket }: CustomProps) => {
-  let { textData, loading, generateText } = useGenerateText();
+  let { generateText } = useGenerateText();
 
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState<Imessage[]>([]);
@@ -29,7 +29,6 @@ const Custom = ({ socket }: CustomProps) => {
   const [username, setUserName] = useState("");
   const [systemMessages, setSystemMessages] = useState<string[]>([]);
   const [creator, setCreator] = useState("");
-  const [roomsArray, setRoomsArray] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -47,6 +46,7 @@ const Custom = ({ socket }: CustomProps) => {
   const [showChat, setShowChat] = useState(false);
 
   let { id } = useParams();
+
   const joinRoom = () => {
     if (username !== "" && room !== "") {
       socket.emit("join_room", room, username);
@@ -80,12 +80,18 @@ const Custom = ({ socket }: CustomProps) => {
     if (username != "" && id != "") {
       socket.emit("join_room", id, username);
     }
-    socket.on("user_data", (rooms: [], roomNumber: string) => {
-      setCreator(rooms[id]?.creator);
+    socket.on("user_data", (rooms: []) => {
+      if (id !== undefined) {
+        // @ts-ignore
+        setCreator(rooms[id]?.creator);
+        dispatch(setRoomCreator(rooms[id]?.creator));
+      }
+      // setCreator(rooms[id]?.creator);
       localStorage.setItem("CurrentId", JSON.stringify(id));
+      dispatch(setCurrentRoomId(id));
       localStorage.setItem("roomsArray", JSON.stringify(rooms));
 
-      setRoomsArray(rooms);
+      // setRoomsArray(rooms);
     });
   }, [selector, username, socket]);
 
@@ -104,6 +110,7 @@ const Custom = ({ socket }: CustomProps) => {
     });
     socket.on("already_inside_room", (message: string) => {
       // Handle the message for users already inside the room
+      console.log(message, "already_inside_room");
     });
 
     return () => {
@@ -122,9 +129,9 @@ const Custom = ({ socket }: CustomProps) => {
         time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
         profilePhoto: picture,
       };
-      console.log(room, "this is the first user--->,, username", username);
 
       socket.emit("send_message", messageData, room ? room : id);
+      // @ts-ignore
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
     }
@@ -240,7 +247,7 @@ const Custom = ({ socket }: CustomProps) => {
                   <p className="text-base leading-relaxed dark:text-white text-gray-500 bg-inherit border-gray-200">
                     Players In Lobby
                   </p>
-                  {userList.map((username, index) => {
+                  {userList.map((username) => {
                     return (
                       <p className="text-base leading-relaxed dark:text-white text-gray-500 bg-inherit">{username}</p>
                     );

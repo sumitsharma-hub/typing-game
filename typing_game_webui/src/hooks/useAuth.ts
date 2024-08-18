@@ -6,16 +6,15 @@ import Axios from "../services/axios";
 import { API, LOCAL_STORAGE_KEY } from "../constants";
 import Cookies from "js-cookie";
 import { fetchUser } from "../features/userSlice";
-import { setLoggedIn, setNotLoggedInName } from "../features/authSlice";
+import { setLoggedIn } from "../features/authSlice";
 import { ILogin, IUseAuth, IUser } from "../interfaces/user";
-import { useAppDispatch, useName } from ".";
+import { useAppDispatch } from ".";
 
 export function useAuth(): IUseAuth {
   const [user, setUser] = useState<IUser>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { getUniqueName } = useName();
 
   const login = async (loginPayload: ILogin) => {
     try {
@@ -28,7 +27,6 @@ export function useAuth(): IUseAuth {
       if (response.status === 201) {
         setIsLoggedIn((prev) => !prev);
         dispatch(setLoggedIn(true));
-        console.log("this is response.data---->", response.data);
       }
       setUser(await response.data);
       await dispatch(fetchUser());
@@ -62,7 +60,7 @@ export function useAuth(): IUseAuth {
     try {
       const token = Cookies.get("access_token");
       if (token) {
-        const revoke_data = await axios.post(`${API.V1.REVOKE_TOKEN}=${token}`);
+        await axios.post(`${API.V1.REVOKE_TOKEN}=${token}`);
         const cookies = Object.keys(Cookies.get());
         cookies.forEach((cookieName) => {
           Cookies.remove(cookieName);

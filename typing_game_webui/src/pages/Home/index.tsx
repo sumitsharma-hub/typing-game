@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Cards from "../../containers/CardContainer";
-import { useAuth } from "../../hooks/useAuth";
 import useName from "../../hooks/useName";
 import { GaurdedLayout } from "../../layouts";
 import { useAppDispatch, useAppSelector } from "../../hooks";
@@ -10,7 +9,7 @@ import { setLoggedIn } from "../../features/authSlice";
 const Home = () => {
   const isLoggedInAuthInfo= useAppSelector(state=>state.Auth)
   const dispatch=useAppDispatch();
-  const {userNameNotLoggedIn ,getUniqueName} = useName();
+  const {getUniqueName} = useName();
   useEffect(()=>{
     if(!isLoggedInAuthInfo.isLoggedIn ||  isLoggedInAuthInfo.notLoggedInName==="" || isLoggedInAuthInfo.notLoggedInName===null){
       getUniqueName();

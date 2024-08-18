@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
 import { LOCAL_STORAGE_KEY } from "../../constants";
-import { getCookies } from "../../utils";
 import { useAppDispatch, useAppSelector, useName } from "../../hooks";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchUser, userSelector } from "../../features/userSlice";
@@ -9,11 +8,11 @@ import { ClearInfo } from "../../features/userSlice";
 import { setNotLoggedInName } from "../../features/authSlice";
 
 const Navbar = () => {
-  const [CookieAccessToken, setCookieAccessToken] = useState<string | undefined>("");
+  // const [CookieAccessToken, setCookieAccessToken] = useState<string | undefined>("");
   const [localStorageToken, setLocalStorageToken] = useState<string | null>("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [loading, setLoading] = useState("");
+  // const [loading, setLoading] = useState("");
 
   const dispatch = useAppDispatch();
   const selector = useAppSelector(userSelector);
@@ -21,21 +20,21 @@ const Navbar = () => {
   const loggedInStatus = isLoggedInAuthInfo.isLoggedIn;
   const Auth = useAuth();
   const { getUniqueName } = useName();
-  let notLoggedInName = "";
-
+  
   useEffect(() => {
-    const { access_token } = getCookies();
-    setLoading(selector.status);
+    // setLoading(selector.status);
     setLocalStorageToken(localStorage.getItem(LOCAL_STORAGE_KEY));
-    setCookieAccessToken(access_token);
+    // setCookieAccessToken(access_token);
   }, []);
 
+  
   const userData = selector.user;
   const picture = userData?.profilePhoto;
   const provider = userData?.provider;
-
+  
   let userName: string | null = null;
-
+  
+  // let notLoggedInName : string | null = "";
   if (provider) {
     userName = userData?.firstName;
   } else if (userData?.firstName || userData?.lastName) {
@@ -43,10 +42,10 @@ const Navbar = () => {
   } else if (!loggedInStatus) {
     userName = isLoggedInAuthInfo.notLoggedInName;
   }
-
+  
   useEffect(() => {
     if (loggedInStatus === false) {
-      notLoggedInName = isLoggedInAuthInfo.notLoggedInName;
+      // let notLoggedInName = isLoggedInAuthInfo.notLoggedInName;
       // dispatch(setNotLoggedInName(notLoggedInName))
     } else {
       dispatch(setNotLoggedInName({ notLoggedInName: userName }));
